@@ -5,12 +5,14 @@ const models = require('./models/models');
 const cors = require('cors');
 const router = require('./routes');
 const errorHandling = require('./middleware/errorHadlingMiddleware');
+const fileUpload = require('express-fileupload');
 
 const PORT = process.env.PORT;
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use(fileUpload({}));
 app.use('/api', router);
 
 app.use(errorHandling);
