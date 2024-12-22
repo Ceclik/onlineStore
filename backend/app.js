@@ -4,6 +4,7 @@ const sequelize = require('./db');
 const models = require('./models/models');
 const cors = require('cors');
 const router = require('./routes');
+const errorHandling = require('./middleware/errorHadlingMiddleware');
 
 const PORT = process.env.PORT;
 const app = express();
@@ -11,6 +12,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use('/api', router);
+
+app.use(errorHandling);
 
 const start = async () => {
     try{
