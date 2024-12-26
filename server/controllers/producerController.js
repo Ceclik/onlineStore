@@ -9,11 +9,11 @@ class ProducerController{
         return res.json(allProducers);
     }
     async addNewProducer(req, res, next){
-        const {name} = req.body;
+        const {name, countryId} = req.body;
         if(!name){
             return next(apiError.badRequest('name is not defined!'));
         }
-        const addedProducer = await Producer.create({name});
+        const addedProducer = await Producer.create({name, countryId});
         return res.json(addedProducer);
     }
     async updateExistingProducer(req, res){}
