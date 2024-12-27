@@ -1,11 +1,12 @@
 const Router = require('express');
 const router = new Router();
 const producerController = require('../controllers/producerController');
+const checkRoleMiddleware = require("../middleware/errorHadlingMiddleware");
 
 router.get('/getOne/:name', producerController.getSingleProducer);
 router.get('/all', producerController.getAllProducers);
-router.post('/add', producerController.addNewProducer);
-router.put('update/:name', producerController.updateExistingProducer);
-router.delete('/delete/:name', producerController.deleteExistingProducer);
+router.post('/add', checkRoleMiddleware('ADMIN'), producerController.addNewProducer);
+router.put('update/:name', checkRoleMiddleware('ADMIN'), producerController.updateExistingProducer);
+router.delete('/delete/:name', checkRoleMiddleware('ADMIN'), producerController.deleteExistingProducer);
 
 module.exports = router;
