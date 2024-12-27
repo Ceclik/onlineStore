@@ -1,33 +1,54 @@
 const uuid = require('uuid');
 const path = require('path');
-const {Product} = require('../models/models');
-const {Country} = require('../models/models');
+const {Product, Country, Description} = require('../models/models');
 const ApiError = require('../error/apiError');
 
 class ProductsController{
 
-    async getSingleProduct(req, res){}
+    async getSingleProduct(req, res){
+        const {id} = req.params;
+        const product = await Product.findOne({
+            where: {id},
+            include: [{model: Description, as: 'info'}]
+        });
+
+        return res.json(product);
+    }
 
     async getAllProduct(req, res){
-        const {producerId, typeId} = req.query;
+        let {producerId, typeId, limit, page} = req.query;
+
+        page = page || 1;
+        limit = limit || 9;
+        let offset = page * limit - limit;
+
         let products
         if(!typeId && producerId){
-            products = await Product.findAll({
-                where: {producerId}
+            products = await Product.findAndCountAll({
+                where: {producerId},
+                limit,
+                offset
             });
         }
         else if(typeId && !producerId){
-            products = await Product.findAll({
-                where: {typeId}
+            products = await Product.findAndCountAll({
+                where: {typeId},
+                limit,
+                offset
             });
         }
         else if(typeId && producerId){
-            products = await Product.findAll({
-                where: {typeId, producerId}
+            products = await Product.findAndCountAll({
+                where: {typeId, producerId},
+                limit,
+                offset
             });
         }
         else {
-            products = await Product.findAll();
+            products = await Product.findAndCountAll({
+                limit,
+                offset
+            });
         }
 
         return res.json(products);
@@ -35,7 +56,7 @@ class ProductsController{
 
     async addNewProduct(req, res, next){
         try {
-            const {name, price, producerId, typeId, country, description} = req.body;
+            let {name, price, producerId, typeId, country, info} = req.body;
             const {img} = req.files;
             let imgName = uuid.v4() + '.jpg';
             await img.mv(path.resolve(__dirname, '..', 'static', imgName));
@@ -50,12 +71,25 @@ class ProductsController{
                 countryId: productCountry.id
             });
 
+            if(info){
+                console.log('in creating info');
+                info = JSON.parse(info);
+                info.forEach((data) => {
+                    Description.create({
+                        title: data.title,
+                        description: data.description,
+                        productId: addedProduct.productId
+                    });
+                })
+            }
+
             return res.json(addedProduct);
         }
         catch (err){
             next(ApiError.badRequest(err.message));
         }
     }
+
     async updateExistingProduct(req, res){}
     async deleteExistingProduct(req, res) {}
 }

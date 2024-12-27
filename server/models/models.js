@@ -29,7 +29,7 @@ const Product = sequelize.define('product', {
     image: {type: DataTypes.STRING, unique: false, allowNull: false},
 });
 
-const Description = sequelize.define('description', {
+const Description = sequelize.define('descriptions', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     title: {type: DataTypes.STRING, unique: false, allowNull: false},
     description: {type: DataTypes.TEXT, unique: false, allowNull: false}
@@ -66,7 +66,7 @@ CartItem.belongsTo(Cart);
 Rating.hasOne(Product);
 Product.belongsTo(Rating);
 
-Product.hasOne(Description);
+Product.hasMany(Description, {as: 'info'});
 Description.belongsTo(Product);
 
 Product.hasMany(CartItem);
