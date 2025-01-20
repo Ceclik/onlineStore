@@ -1,7 +1,7 @@
 const Router = require('express');
 const router = new Router();
-const productController = require('../controllers/productsController');
-const checkRoleMiddleware = require("../middleware/errorHadlingMiddleware");
+const productController = require('../controllers/productController');
+const checkRoleMiddleware = require("../middleware/checkRoleMiddleware");
 
 router.get('/getOne/:id', productController.getSingleProduct);
 router.get('/all', productController.getAllProduct);

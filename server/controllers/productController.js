@@ -3,7 +3,7 @@ const path = require('path');
 const {Product, Country, Description} = require('../models/models');
 const ApiError = require('../error/apiError');
 
-class ProductsController{
+class ProductController {
 
     async getSingleProduct(req, res){
         const {id} = req.params;
@@ -113,4 +113,4 @@ const checkOrCreate = async (nameValue, next) =>{
     }
 }
 
-module.exports = new ProductsController();
+module.exports = new ProductController();
