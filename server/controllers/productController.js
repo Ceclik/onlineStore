@@ -72,17 +72,15 @@ class ProductController {
             });
 
             if(info){
-                console.log('in creating info');
                 info = JSON.parse(info);
                 info.forEach((data) => {
                     Description.create({
                         title: data.title,
                         description: data.description,
-                        productId: addedProduct.productId
+                        productId: addedProduct.id
                     });
                 })
             }
-
             return res.json(addedProduct);
         }
         catch (err){
@@ -90,8 +88,80 @@ class ProductController {
         }
     }
 
-    async updateExistingProduct(req, res){}
-    async deleteExistingProduct(req, res) {}
+    async updateExistingProduct(req, res, next){
+        try{
+            const id = parseInt(req.params.id, 10);
+            let {name, price, producerId, typeId, country, info} = req.body;
+            let imgName;
+            if(req.files) {
+                const {img} = req.files;
+                if (img) {
+                    imgName = uuid.v4() + '.jpg';
+                }
+            }
+
+            const newProductCountry = await checkOrCreate(country, next)
+
+            await Product.update(
+                {
+                    name, price, producerId, typeId, newProductCountry, imgName
+                },
+                {
+                    where: {id}
+                });
+
+            if (info) {
+                info = JSON.parse(info);
+
+                const existingDescriptions = await Description.findAll({ where: { productId: id } });
+
+                for (const data of info) {
+                    const existingDescription = existingDescriptions.find(d => d.id === data.id);
+                    if (existingDescription) {
+                        await Description.update(
+                            {
+                                title: data.title,
+                                description: data.description
+                            },
+                            {
+                                where: { id: existingDescription.id }
+                            }
+                        );
+                    } else {
+                        await Description.create({
+                            title: data.title,
+                            description: data.description,
+                            productId: id
+                        });
+                    }
+                }
+            }
+            const updatedProduct = Product.findOne({
+                where: {id}
+            });
+
+            return res.json(updatedProduct);
+        }catch (err){
+            next(ApiError.badRequest(err.message));
+        }
+    }
+
+    async deleteExistingProduct(req, res, next) {
+        try{
+            const id = parseInt(req.params.id, 10);
+            const deletedProduct = await Product.findOne({
+                where: {id}
+            });
+
+            await Product.destroy({
+                where:{id}
+            });
+
+            return res.json(deletedProduct);
+        }catch (err){
+            next(ApiError.badRequest(err.message));
+        }
+    }
 }
 
 const checkOrCreate = async (nameValue, next) =>{

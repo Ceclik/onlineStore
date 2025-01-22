@@ -66,7 +66,7 @@ CartItem.belongsTo(Cart);
 Rating.hasOne(Product);
 Product.belongsTo(Rating);
 
-Product.hasMany(Description, {as: 'info'});
+Product.hasMany(Description, {as: 'info', onDelete: 'CASCADE'});
 Description.belongsTo(Product);
 
 Product.hasMany(CartItem);

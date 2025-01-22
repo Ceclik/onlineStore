@@ -1,4 +1,5 @@
 const apiError = require("../error/apiError");
+const {Producer} = require("../models/models");
 
 class ProducerController{
 
