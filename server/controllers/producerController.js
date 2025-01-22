@@ -1,9 +1,16 @@
-const {Producer, Product} = require('../models/models');
 const apiError = require("../error/apiError");
 
 class ProducerController{
 
-    async getSingleProducer(req, res){}
+    async getSingleProducer(req, res){
+        const {name} = req.params;
+        return res.json(await Producer.findOne(
+            {
+                where: {name}
+            }
+        ));
+    }
+
     async getAllProducers(req, res){
         const allProducers = await Producer.findAll();
         return res.json(allProducers);
@@ -16,9 +23,26 @@ class ProducerController{
         const addedProducer = await Producer.create({name, countryId});
         return res.json(addedProducer);
     }
-    async updateExistingProducer(req, res){}
+
+    async updateExistingProducer(req, res){
+
+        const id = parseInt(req.params.id, 10);
+        const {newName} = req.body;
+
+        await Producer.update(
+            {name: newName},
+            {where: {id}}
+        );
+
+        const updatedProducer = await Producer.findOne({
+            where: {id}
+        });
+
+        return res.json(updatedProducer);
+    }
+
     async deleteExistingProducer(req, res, next) {
-        const {name} = req.body;
+        const {name} = req.params;
         if(!name){
             return next(apiError.badRequest('name is not defined!'));
         }
@@ -27,14 +51,6 @@ class ProducerController{
         });
         await Producer.destroy({
             where : {name}
-        });
-
-       /* const productsOfDeletedProducer = await Product.findAll({
-            where: {producerId: deletedProducer.id}
-        });*/
-
-        await Product.destroy({
-            where: {id: deletedProducer.id}
         });
 
         return res.json(deletedProducer);
