@@ -1,4 +1,4 @@
-const {Producer} = require('../models/models');
+const {Producer, Product} = require('../models/models');
 const apiError = require("../error/apiError");
 
 class ProducerController{
@@ -17,7 +17,28 @@ class ProducerController{
         return res.json(addedProducer);
     }
     async updateExistingProducer(req, res){}
-    async deleteExistingProducer(req, res) {}
+    async deleteExistingProducer(req, res, next) {
+        const {name} = req.body;
+        if(!name){
+            return next(apiError.badRequest('name is not defined!'));
+        }
+        const deletedProducer = await Producer.findOne({
+            where: {name}
+        });
+        await Producer.destroy({
+            where : {name}
+        });
+
+       /* const productsOfDeletedProducer = await Product.findAll({
+            where: {producerId: deletedProducer.id}
+        });*/
+
+        await Product.destroy({
+            where: {id: deletedProducer.id}
+        });
+
+        return res.json(deletedProducer);
+    }
 }
 
 module.exports = new ProducerController();
