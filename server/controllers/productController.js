@@ -116,7 +116,7 @@ class ProductController {
                 const existingDescriptions = await Description.findAll({ where: { productId: id } });
 
                 for (const data of info) {
-                    const existingDescription = existingDescriptions.find(d => d.id === data.id);
+                    const existingDescription = existingDescriptions.find(d => d.title === data.title);
                     if (existingDescription) {
                         await Description.update(
                             {
