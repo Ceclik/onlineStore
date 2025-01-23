@@ -1,8 +1,9 @@
 const uuid = require('uuid');
 const path = require('path');
-const {Product, Country, Description, CartItem, Cart} = require('../models/models');
+const {Product, Country, Description, CartItem, Cart, Rating} = require('../models/models');
 const ApiError = require('../error/apiError');
 const jwt = require('jsonwebtoken');
+const {where} = require("sequelize");
 
 class ProductController {
 
@@ -219,6 +220,44 @@ class ProductController {
             return res.json('Product has been successfully deleted from cart');
         }
         catch(err){
+            next(ApiError.badRequest(err.message));
+        }
+    }
+
+    async addRating(req, res, next){
+        try{
+            const user = jwt.decode(req.headers.authorization.split(' ')[1]);
+            const {productId} = req.params;
+            const {rating} = req.body;
+
+            const [record, created] = await Rating.findOrCreate(
+                {where: {
+                    rating,
+                    userId: user.id,
+                        productId
+                }});
+
+            if(created)
+                return res.json('Rating successfully published');
+            else
+                return next(ApiError.badRequest('Your rating on this product is already exist!'));
+        }
+        catch(err){
+            next(ApiError.badRequest(err.message));
+        }
+    }
+
+    async deleteRating(req, res, next){
+        try{
+            const user = jwt.decode(req.headers.authorization.split(' ')[1]);
+            const {productId} = req.params;
+            await Rating.destroy({where:
+                    {
+                        userId: user.id,
+                        productId
+                    }});
+            return res.json('Rating has been successfully deleted!');
+        }catch(err){
             next(ApiError.badRequest(err.message));
         }
     }

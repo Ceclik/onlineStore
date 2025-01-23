@@ -11,5 +11,7 @@ router.put('/update/:id', checkRoleMiddleware('ADMIN'), productController.update
 router.delete('/delete/:id', checkRoleMiddleware('ADMIN'), productController.deleteExistingProduct);
 router.post('/addToCart/:productId', authMiddleware, productController.addProductToCart);
 router.delete('/deleteFromCart/:productId', authMiddleware, productController.deleteProductFromCart);
+router.post('/addRating/:productId', authMiddleware, productController.addRating);
+router.delete('/deleteRating/:productId', authMiddleware, productController.deleteRating);
 
 module.exports = router;
