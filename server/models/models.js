@@ -57,10 +57,10 @@ const TypeBrand = sequelize.define('type_brand', {
 User.hasMany(Rating);
 Rating.belongsTo(User);
 
-User.hasOne(Cart);
+User.hasOne(Cart, {onDelete: 'CASCADE'});
 Cart.belongsTo(User);
 
-Cart.hasMany(CartItem);
+Cart.hasMany(CartItem, {onDelete: 'CASCADE'});
 CartItem.belongsTo(Cart);
 
 Rating.hasOne(Product);

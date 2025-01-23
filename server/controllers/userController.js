@@ -45,7 +45,7 @@ class UserController{
 
         const hashPassword = await bcrypt.hash(password, 5);
         const createdUser = await User.create({email, password: hashPassword, role});
-        //const createdCart = Cart.create({userId: createdUser.id});
+        const createdCart = Cart.create({userId: createdUser.id});
 
         const token = generateJwt(createdUser.id, email, createdUser.role);
         return res.json(token);
