@@ -16,7 +16,7 @@ const checkEmailExist = async (email) => {
         where: {email}
     });
     if(originalEmail)
-        throw new Error("Emails couldn't be the same with previous email");
+        throw new Error("Email couldn't be the same with previous email!");
 }
 
 const checkPasswordExist = async (hashPassword, originalId) => {
@@ -27,7 +27,7 @@ const checkPasswordExist = async (hashPassword, originalId) => {
         }
     });
     if(originalPassword)
-        throw new Error("Passwords couldn't be same");
+        throw new Error("Passwords couldn't be same with previous password!");
 }
 
 class UserController{

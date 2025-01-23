@@ -7,7 +7,17 @@ class TypeController{
         return res.json(allTypes);
     }
 
-    async deleteType(req, res) {}
+    async deleteType(req, res, next) {
+        const {name} = req.body;
+        if(!name){
+            return next(apiError.badRequest('name is not defined!'));
+        }
+        await Type.destroy({
+            where: {name}
+        });
+
+        return res.body('Type successfully deleted!')
+    }
 
     async addType(req, res, next){
         const {name} = req.body;

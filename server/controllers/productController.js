@@ -1,7 +1,8 @@
 const uuid = require('uuid');
 const path = require('path');
-const {Product, Country, Description} = require('../models/models');
+const {Product, Country, Description, CartItem, Cart} = require('../models/models');
 const ApiError = require('../error/apiError');
+const jwt = require('jsonwebtoken');
 
 class ProductController {
 
@@ -159,6 +160,37 @@ class ProductController {
 
             return res.json(deletedProduct);
         }catch (err){
+            next(ApiError.badRequest(err.message));
+        }
+    }
+
+    async addProductToCart(req, res, next){
+        try{
+            const user = jwt.decode(req.headers.authorization.split(' ')[1]);
+            const {productId} = req.params;
+
+            const product = await Product.findOne({
+                where: {id: productId}
+            });
+
+            if(!product)
+                return next(ApiError.badRequest("Product doesn't exist"));
+
+            console.log(`UserID: ${user.id}`);
+
+            const cart = await Cart.findOne({
+                where: {userId: user.id}
+            });
+
+            console.log(`CartID: ${cart.id}`);
+
+            const createdCartItem = await CartItem.create({
+                cartId: cart.id,
+                productId
+            });
+            return res.json('Item has been successfully added');
+        }
+        catch(err){
             next(ApiError.badRequest(err.message));
         }
     }
