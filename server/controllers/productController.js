@@ -176,19 +176,47 @@ class ProductController {
             if(!product)
                 return next(ApiError.badRequest("Product doesn't exist"));
 
-            console.log(`UserID: ${user.id}`);
+            const cart = await Cart.findOne({
+                where: {userId: user.id}
+            });
+
+            const [record, created] = await CartItem.findOrCreate({where: {
+                cartId: cart.id,
+                productId
+            }});
+
+            if(created)
+                return res.json('Item has been successfully added');
+            else
+                return next(ApiError.badRequest(('Item is already in your cart')));
+        }
+        catch(err){
+            next(ApiError.badRequest(err.message));
+        }
+    }
+
+    async deleteProductFromCart(req, res, next){
+        try{
+            const user = jwt.decode(req.headers.authorization.split(' ')[1]);
+            const {productId} = req.params;
 
             const cart = await Cart.findOne({
                 where: {userId: user.id}
             });
 
-            console.log(`CartID: ${cart.id}`);
+            if(!await CartItem.findOne({where:
+                    {productId,
+                    cartId: cart.id}})) {
+                return next(ApiError.badRequest('There is no such product in your cart'));
+            }
 
-            const createdCartItem = await CartItem.create({
-                cartId: cart.id,
-                productId
-            });
-            return res.json('Item has been successfully added');
+            await CartItem.destroy({where:
+                    {
+                        productId,
+                        cartId: cart.id
+                    }});
+
+            return res.json('Product has been successfully deleted from cart');
         }
         catch(err){
             next(ApiError.badRequest(err.message));

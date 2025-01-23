@@ -10,6 +10,6 @@ router.post('/add', checkRoleMiddleware('ADMIN'), productController.addNewProduc
 router.put('/update/:id', checkRoleMiddleware('ADMIN'), productController.updateExistingProduct);
 router.delete('/delete/:id', checkRoleMiddleware('ADMIN'), productController.deleteExistingProduct);
 router.post('/addToCart/:productId', authMiddleware, productController.addProductToCart);
-
+router.delete('/deleteFromCart/:productId', authMiddleware, productController.deleteProductFromCart);
 
 module.exports = router;
