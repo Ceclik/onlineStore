@@ -1,4 +1,3 @@
-const apiError = require('../error/apiError');
 const bcrypt = require('bcrypt');
 const {User, Cart} = require('../models/models');
 const ApiError = require('../error/apiError');
@@ -27,7 +26,7 @@ class UserController{
 
         const hashPassword = await bcrypt.hash(password, 5);
         const createdUser = await User.create({email, password: hashPassword, role});
-        const createdCart = Cart.create({userId: createdUser.id});
+        //const createdCart = Cart.create({userId: createdUser.id});
 
         const token = generateJwt(createdUser.id, email, createdUser.role);
         return res.json(token);
@@ -52,12 +51,27 @@ class UserController{
         return res.json(token);
     }
 
-    async check(req, res, next) {
+    async check(req, res) {
         const token = generateJwt(req.user.id, req.user.email, req.user.role);
        return res.json(token);
     }
 
-    async delete(req, res){};
+    async delete(req, res, next){
+        try {
+            const token = req.headers.authorization.split(' ')[1];
+            const deletedUser = jwt.decode(token);
+            await User.destroy({
+                where: {email: deletedUser.email}
+            });
+
+            return res.json(deletedUser);
+        }
+        catch (err) {
+            next(ApiError.badRequest(err.message));
+        }
+    }
+
+
 }
 
 module.exports = new UserController();
