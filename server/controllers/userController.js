@@ -11,6 +11,25 @@ const generateJwt = (id, email, role) => {
     );
 }
 
+const checkEmailExist = async (email) => {
+    const originalEmail = await User.findOne({
+        where: {email}
+    });
+    if(originalEmail)
+        throw new Error("Emails couldn't be the same with previous email");
+}
+
+const checkPasswordExist = async (hashPassword, originalId) => {
+    const originalPassword = await User.findOne({
+        where: {
+            id: originalId,
+            password: hashPassword
+        }
+    });
+    if(originalPassword)
+        throw new Error("Passwords couldn't be same");
+}
+
 class UserController{
 
     async register(req, res, next){
@@ -71,7 +90,53 @@ class UserController{
         }
     }
 
+    async update(req, res, next){
+        try{
+            const originalUser = jwt.decode(req.headers.authorization.split(' ')[1]);
+            const {email, password} = req.body;
 
+            if(password && !email) {
+                const hashPassword = await bcrypt.hash(password, 5);
+                await checkPasswordExist(hashPassword, originalUser.id);
+                await User.update({
+                    password: hashPassword
+                },
+                    {
+                        where: {id: originalUser.id}
+                    });
+            }
+            else if(email && !password){
+                await checkEmailExist(email);
+                await User.update({
+                    email
+                },
+                    {
+                        where: {id: originalUser.id}
+                    });
+            }
+            else if(password && email){
+                const hashPassword = await bcrypt.hash(password, 5);
+
+                await checkEmailExist(email);
+                await checkPasswordExist(hashPassword, originalUser.id);
+
+                await User.update({
+                    password: hashPassword,
+                    email
+                },
+                    {
+                        where: {id: originalUser.id}
+                    });
+            }
+            const updatedUser = await User.findOne({
+                where: {id: originalUser.id}
+            });
+            return res.json(generateJwt(updatedUser.id, updatedUser.email, updatedUser.role));
+        }
+        catch (err) {
+            next(ApiError.badRequest(err.message));
+        }
+    }
 }
 
 module.exports = new UserController();
