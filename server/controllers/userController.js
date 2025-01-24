@@ -15,7 +15,7 @@ const checkEmailExist = async (email) => {
     const originalEmail = await User.findOne({
         where: {email}
     });
-    if(originalEmail)
+    if (originalEmail)
         throw new Error("Email couldn't be the same with previous email!");
 }
 
@@ -26,42 +26,42 @@ const checkPasswordExist = async (hashPassword, originalId) => {
             password: hashPassword
         }
     });
-    if(originalPassword)
+    if (originalPassword)
         throw new Error("Passwords couldn't be same with previous password!");
 }
 
-class UserController{
+class UserController {
 
-    async register(req, res, next){
+    async register(req, res, next) {
         const {email, password, role} = req.body;
-        if(!email || !password){
+        if (!email || !password) {
             return next(ApiError.badRequest('undefined password or email')) //TODO переделать нормально по видосу с авторизацией
         }
 
         const candidate = await User.findOne({where: {email}});
-        if(candidate){
+        if (candidate) {
             return next(ApiError.badRequest('User with this email already exists'));
         }
 
         const hashPassword = await bcrypt.hash(password, 5);
         const createdUser = await User.create({email, password: hashPassword, role});
-        const createdCart = Cart.create({userId: createdUser.id});
+        await Cart.create({userId: createdUser.id});
 
         const token = generateJwt(createdUser.id, email, createdUser.role);
         return res.json(token);
     }
 
-    async login(req, res, next){
+    async login(req, res, next) {
         const {email, password} = req.body;
         const user = await User.findOne({
             where: {email}
         });
 
-        if(!user){
+        if (!user) {
             return next(ApiError.badRequest('no user with such email'));
         }
         let comparedPassword = bcrypt.compareSync(password, user.password);
-        if(!comparedPassword){
+        if (!comparedPassword) {
             return next(ApiError.badRequest('wrong password'));
         }
 
@@ -72,10 +72,10 @@ class UserController{
 
     async check(req, res) {
         const token = generateJwt(req.user.id, req.user.email, req.user.role);
-       return res.json(token);
+        return res.json(token);
     }
 
-    async delete(req, res, next){
+    async delete(req, res, next) {
         try {
             const token = req.headers.authorization.split(' ')[1];
             const deletedUser = jwt.decode(token);
@@ -84,46 +84,43 @@ class UserController{
             });
 
             return res.json(deletedUser);
-        }
-        catch (err) {
+        } catch (err) {
             next(ApiError.internal(err.message));
         }
     }
 
-    async update(req, res, next){
-        try{
+    async update(req, res, next) {
+        try {
             const originalUser = jwt.decode(req.headers.authorization.split(' ')[1]);
             const {email, password} = req.body;
 
-            if(password && !email) {
+            if (password && !email) {
                 const hashPassword = await bcrypt.hash(password, 5);
                 await checkPasswordExist(hashPassword, originalUser.id);
                 await User.update({
-                    password: hashPassword
-                },
+                        password: hashPassword
+                    },
                     {
                         where: {id: originalUser.id}
                     });
-            }
-            else if(email && !password){
+            } else if (email && !password) {
                 await checkEmailExist(email);
                 await User.update({
-                    email
-                },
+                        email
+                    },
                     {
                         where: {id: originalUser.id}
                     });
-            }
-            else if(password && email){
+            } else if (password && email) {
                 const hashPassword = await bcrypt.hash(password, 5);
 
                 await checkEmailExist(email);
                 await checkPasswordExist(hashPassword, originalUser.id);
 
                 await User.update({
-                    password: hashPassword,
-                    email
-                },
+                        password: hashPassword,
+                        email
+                    },
                     {
                         where: {id: originalUser.id}
                     });
@@ -132,8 +129,7 @@ class UserController{
                 where: {id: originalUser.id}
             });
             return res.json(generateJwt(updatedUser.id, updatedUser.email, updatedUser.role));
-        }
-        catch (err) {
+        } catch (err) {
             next(ApiError.internal(err.message));
         }
     }

@@ -1,25 +1,25 @@
-const {Product, Country, Description, CartItem, Cart, Rating, Producer, Type} = require('../models/models');
+const {Product, Producer, Type} = require('../models/models');
 const ApiError = require('../error/apiError');
 const {Op} = require("sequelize");
 
-class ProductSearchSortController{
-    async nameSearch(req, res, next){
+class ProductSearchSortController {
+    async nameSearch(req, res, next) {
         const {name} = req.query;
 
-        if(!name)
+        if (!name)
             return next(ApiError.badRequest('Name is not defined'));
 
         const products = await Product.findAll({
             where: {name}
-            });
+        });
 
-        if(!products)
+        if (!products)
             return res.json("not found!")
 
         return res.json(products);
     }
 
-    async producerNameSort(req, res, next){
+    async producerNameSort(req, res, next) {
         try {
             const {producerName} = req.query;
             if (!producerName)
@@ -29,19 +29,19 @@ class ProductSearchSortController{
                 where: {name: producerName}
             });
 
-            if(!producer)
+            if (!producer)
                 return res.json("not found");
 
             const products = await Product.findAll({
                 where: {producerId: producer.id}
             });
             return res.json(products);
-        }
-        catch (err){
+        } catch (err) {
             next(ApiError.internal(err.message));
         }
     }
-    async typeSort(req, res, next){
+
+    async typeSort(req, res, next) {
         try {
             const {type} = req.query;
             if (!type)
@@ -51,7 +51,7 @@ class ProductSearchSortController{
                 where: {name: type}
             });
 
-            if(!typeData)
+            if (!typeData)
                 return res.json('not found!')
 
             const products = await Product.findAll({
@@ -59,11 +59,12 @@ class ProductSearchSortController{
             });
 
             return res.json(products);
-        }catch (err){
+        } catch (err) {
             next(ApiError.internal(err.message));
         }
     }
-    async priceSort(req, res, next){
+
+    async priceSort(req, res, next) {
         try {
             const {minPrice, maxPrice, sortOrder} = req.query;
 
@@ -82,7 +83,7 @@ class ProductSearchSortController{
             });
 
             return res.json(products);
-        }catch (err){
+        } catch (err) {
             next(ApiError.internal(err.message));
         }
     }

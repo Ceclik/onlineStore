@@ -3,18 +3,17 @@ const path = require('path');
 const {Product, Country, Description, CartItem, Cart, Rating} = require('../models/models');
 const ApiError = require('../error/apiError');
 const jwt = require('jsonwebtoken');
-const {where, Sequelize} = require("sequelize");
 
 class ProductController {
 
-    async getSingleProduct(req, res, next){
+    async getSingleProduct(req, res, next) {
         const {id} = req.params;
         const product = await Product.findOne({
             where: {id},
             include: [{model: Description, as: 'info'}]
         });
 
-        if(!product)
+        if (!product)
             return next(ApiError.badRequest('Product not found!'));
 
         let averageRating = await countRating(id);
@@ -27,7 +26,7 @@ class ProductController {
         return res.json(productWithRating);
     }
 
-    async getAllProduct(req, res, next){
+    async getAllProduct(req, res, next) {
         try {
             let {producerId, typeId, limit, page} = req.query;
 
@@ -66,30 +65,29 @@ class ProductController {
             }
 
             return res.json(products);
-        }
-        catch(err){
+        } catch (err) {
             next(ApiError.internal(err.message));
         }
     }
 
-    async addNewProduct(req, res, next){
+    async addNewProduct(req, res, next) {
         try {
             let {name, price, producerId, typeId, country, info} = req.body;
             let imgName = "";
-            if(req.files) {
+            if (req.files) {
                 const {img} = req.files;
-                if(img) {
+                if (img) {
                     imgName = uuid.v4() + '.jpg';
                     await img.mv(path.resolve(__dirname, '..', 'static', imgName));
                 }
             }
 
-            if(await Product.findOne({
+            if (await Product.findOne({
                 where: {
                     name,
                     producerId
                 }
-            })){
+            })) {
                 return next(ApiError.badRequest('This product is already exists'));
             }
 
@@ -103,7 +101,7 @@ class ProductController {
                 countryId: productCountry.id
             });
 
-            if(info){
+            if (info) {
                 info = JSON.parse(info);
                 info.forEach((data) => {
                     Description.create({
@@ -114,18 +112,17 @@ class ProductController {
                 })
             }
             return res.json(addedProduct);
-        }
-        catch (err){
+        } catch (err) {
             next(ApiError.internal(err.message));
         }
     }
 
-    async updateExistingProduct(req, res, next){
-        try{
+    async updateExistingProduct(req, res, next) {
+        try {
             const id = parseInt(req.params.id, 10);
             let {name, price, producerId, typeId, country, info} = req.body;
             let imgName = "";
-            if(req.files) {
+            if (req.files) {
                 const {img} = req.files;
                 if (img) {
                     imgName = uuid.v4() + '.jpg';
@@ -134,12 +131,12 @@ class ProductController {
 
             const newProductCountry = await checkOrCreate(country, next)
 
-            if(await Product.findOne({
+            if (await Product.findOne({
                 where: {
                     name,
                     producerId
                 }
-            })){
+            })) {
                 return next(ApiError.badRequest('This product is already exists'));
             }
 
@@ -154,7 +151,7 @@ class ProductController {
             if (info) {
                 info = JSON.parse(info);
 
-                const existingDescriptions = await Description.findAll({ where: { productId: id } });
+                const existingDescriptions = await Description.findAll({where: {productId: id}});
 
                 for (const data of info) {
                     const existingDescription = existingDescriptions.find(d => d.title === data.title);
@@ -165,7 +162,7 @@ class ProductController {
                                 description: data.description
                             },
                             {
-                                where: { id: existingDescription.id }
+                                where: {id: existingDescription.id}
                             }
                         );
                     } else {
@@ -182,27 +179,27 @@ class ProductController {
             });
 
             return res.json(updatedProduct);
-        }catch (err){
+        } catch (err) {
             next(ApiError.internal(err.message));
         }
     }
 
     async deleteExistingProduct(req, res, next) {
-        try{
+        try {
             const id = parseInt(req.params.id, 10);
 
             await Product.destroy({
-                where:{id}
+                where: {id}
             });
 
             return res.json("Product has been successfully deleted!");
-        }catch (err){
+        } catch (err) {
             next(ApiError.internal(err.message));
         }
     }
 
-    async addProductToCart(req, res, next){
-        try{
+    async addProductToCart(req, res, next) {
+        try {
             const user = jwt.decode(req.headers.authorization.split(' ')[1]);
             const {productId} = req.params;
 
@@ -210,30 +207,31 @@ class ProductController {
                 where: {id: productId}
             });
 
-            if(!product)
+            if (!product)
                 return next(ApiError.badRequest("Product doesn't exist"));
 
             const cart = await Cart.findOne({
                 where: {userId: user.id}
             });
 
-            const [record, created] = await CartItem.findOrCreate({where: {
-                cartId: cart.id,
-                productId
-            }});
+            const created = await CartItem.findOrCreate({
+                where: {
+                    cartId: cart.id,
+                    productId
+                }
+            });
 
-            if(created)
+            if (created)
                 return res.json('Item has been successfully added');
             else
                 return next(ApiError.badRequest(('Item is already in your cart')));
-        }
-        catch(err){
+        } catch (err) {
             next(ApiError.internal(err.message));
         }
     }
 
-    async deleteProductFromCart(req, res, next){
-        try{
+    async deleteProductFromCart(req, res, next) {
+        try {
             const user = jwt.decode(req.headers.authorization.split(' ')[1]);
             const {productId} = req.params;
 
@@ -241,65 +239,71 @@ class ProductController {
                 where: {userId: user.id}
             });
 
-            if(!await CartItem.findOne({where:
-                    {productId,
-                    cartId: cart.id}})) {
-                return next(ApiError.badRequest('There is no such product in your cart'));
-            }
-
-            await CartItem.destroy({where:
+            if (!await CartItem.findOne({
+                where:
                     {
                         productId,
                         cartId: cart.id
-                    }});
+                    }
+            })) {
+                return next(ApiError.badRequest('There is no such product in your cart'));
+            }
+
+            await CartItem.destroy({
+                where:
+                    {
+                        productId,
+                        cartId: cart.id
+                    }
+            });
 
             return res.json('Product has been successfully deleted from cart');
-        }
-        catch(err){
+        } catch (err) {
             next(ApiError.internal(err.message));
         }
     }
 
-    async addRating(req, res, next){
-        try{
+    async addRating(req, res, next) {
+        try {
             const user = jwt.decode(req.headers.authorization.split(' ')[1]);
             const {productId} = req.params;
             const {rating} = req.body;
 
             const existingRating = await Rating.findOne({
-                where: {userId: user.id,
-                    productId}
+                where: {
+                    userId: user.id,
+                    productId
+                }
             });
 
-            if(!existingRating)
-            {
+            if (!existingRating) {
                 await Rating.create({
                     userId: user.id,
                     productId,
                     rating
                 });
-            }
-            else
+            } else
                 return next(ApiError.badRequest('Your rating on this product is already exist!'));
 
             return res.json('Rating successfully published');
-        }
-        catch(err){
+        } catch (err) {
             next(ApiError.internal(err.message));
         }
     }
 
-    async deleteRating(req, res, next){
-        try{
+    async deleteRating(req, res, next) {
+        try {
             const user = jwt.decode(req.headers.authorization.split(' ')[1]);
             const {productId} = req.params;
-            await Rating.destroy({where:
+            await Rating.destroy({
+                where:
                     {
                         userId: user.id,
                         productId
-                    }});
+                    }
+            });
             return res.json('Rating has been successfully deleted!');
-        }catch(err){
+        } catch (err) {
             next(ApiError.internal(err.message));
         }
     }
@@ -315,10 +319,10 @@ const countRating = async (productId) => {
         const ratingVal = parseInt(rating.rating, 10);
         sum += ratingVal;
     });
-    return sum/ratings.length;
+    return sum / ratings.length;
 }
 
-const checkOrCreate = async (nameValue, next) =>{
+const checkOrCreate = async (nameValue, next) => {
     try {
         const [record, created] = await Country.findOrCreate({
             where: {name: nameValue},
@@ -332,7 +336,7 @@ const checkOrCreate = async (nameValue, next) =>{
         }
         return record;
 
-    }catch (err){
+    } catch (err) {
         next(ApiError.internal(err.message));
     }
 }
