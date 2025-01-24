@@ -3,57 +3,73 @@ const path = require('path');
 const {Product, Country, Description, CartItem, Cart, Rating} = require('../models/models');
 const ApiError = require('../error/apiError');
 const jwt = require('jsonwebtoken');
-const {where} = require("sequelize");
+const {where, Sequelize} = require("sequelize");
 
 class ProductController {
 
-    async getSingleProduct(req, res){
+    async getSingleProduct(req, res, next){
         const {id} = req.params;
         const product = await Product.findOne({
             where: {id},
             include: [{model: Description, as: 'info'}]
         });
 
-        return res.json(product);
+        if(!product)
+            return next(ApiError.badRequest('Product not found!'));
+
+        let averageRating = await countRating(id);
+
+        const productWithRating = {
+            ...product.toJSON(),
+            averageRating: averageRating
+        };
+
+        return res.json(productWithRating);
     }
 
-    async getAllProduct(req, res){
-        let {producerId, typeId, limit, page} = req.query;
+    async getAllProduct(req, res, next){
+        try {
+            let {producerId, typeId, limit, page} = req.query;
 
-        page = page || 1;
-        limit = limit || 9;
-        let offset = page * limit - limit;
+            page = page || 1;
+            limit = limit || 9;
+            let offset = page * limit - limit;
 
-        let products
-        if(!typeId && producerId){
-            products = await Product.findAndCountAll({
-                where: {producerId},
-                limit,
-                offset
-            });
-        }
-        else if(typeId && !producerId){
-            products = await Product.findAndCountAll({
-                where: {typeId},
-                limit,
-                offset
-            });
-        }
-        else if(typeId && producerId){
-            products = await Product.findAndCountAll({
-                where: {typeId, producerId},
-                limit,
-                offset
-            });
-        }
-        else {
-            products = await Product.findAndCountAll({
-                limit,
-                offset
-            });
-        }
+            let products
+            if (!typeId && producerId) {
+                products = await Product.findAndCountAll({
+                    where: {producerId},
+                    include: [{model: Description, as: 'info'}],
+                    limit,
+                    offset
+                });
+            } else if (typeId && !producerId) {
+                products = await Product.findAndCountAll({
+                    where: {typeId},
+                    include: [{model: Description, as: 'info'}, {model: Rating}],
+                    limit,
+                    offset
+                });
+            } else if (typeId && producerId) {
+                products = await Product.findAndCountAll({
+                    where: {typeId, producerId},
+                    include: [{model: Description, as: 'info'}],
+                    limit,
+                    offset
+                });
+            } else {
+                products = await Product.findAndCountAll({
+                    include: [{model: Description, as: 'info'}],
+                    limit,
+                    offset
+                });
+            }
 
-        return res.json(products);
+            return res.json(products);
+        }
+        catch(err){
+            next(ApiError.badRequest(err.message));
+        }
     }
 
     async addNewProduct(req, res, next){
@@ -230,17 +246,23 @@ class ProductController {
             const {productId} = req.params;
             const {rating} = req.body;
 
-            const [record, created] = await Rating.findOrCreate(
-                {where: {
-                    rating,
-                    userId: user.id,
-                        productId
-                }});
+            const existingRating = await Rating.findOne({
+                where: {userId: user.id,
+                    productId}
+            });
 
-            if(created)
-                return res.json('Rating successfully published');
+            if(!existingRating)
+            {
+                await Rating.create({
+                    userId: user.id,
+                    productId,
+                    rating
+                });
+            }
             else
                 return next(ApiError.badRequest('Your rating on this product is already exist!'));
+
+            return res.json('Rating successfully published');
         }
         catch(err){
             next(ApiError.badRequest(err.message));
@@ -261,6 +283,19 @@ class ProductController {
             next(ApiError.badRequest(err.message));
         }
     }
+}
+
+const countRating = async (productId) => {
+    const ratings = await Rating.findAll({
+        where: {productId}
+    });
+
+    let sum = 0;
+    ratings.forEach((rating) => {
+        const ratingVal = parseInt(rating.rating, 10);
+        sum += ratingVal;
+    });
+    return sum/ratings.length;
 }
 
 const checkOrCreate = async (nameValue, next) =>{
