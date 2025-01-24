@@ -32,7 +32,7 @@ class ProducerController{
             return res.json(addedProducer);
         }
         catch (err){
-            next(ApiError.badRequest(err.message));
+            next(ApiError.internal(err.message));
         }
     }
 
@@ -53,7 +53,7 @@ class ProducerController{
             return res.json(updatedProducer);
         }
         catch(err){
-            next(ApiError.badRequest(err.message));
+            next(ApiError.internal(err.message));
         }
     }
 

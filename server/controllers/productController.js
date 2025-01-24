@@ -68,7 +68,7 @@ class ProductController {
             return res.json(products);
         }
         catch(err){
-            next(ApiError.badRequest(err.message));
+            next(ApiError.internal(err.message));
         }
     }
 
@@ -116,7 +116,7 @@ class ProductController {
             return res.json(addedProduct);
         }
         catch (err){
-            next(ApiError.badRequest(err.message));
+            next(ApiError.internal(err.message));
         }
     }
 
@@ -183,7 +183,7 @@ class ProductController {
 
             return res.json(updatedProduct);
         }catch (err){
-            next(ApiError.badRequest(err.message));
+            next(ApiError.internal(err.message));
         }
     }
 
@@ -197,7 +197,7 @@ class ProductController {
 
             return res.json("Product has been successfully deleted!");
         }catch (err){
-            next(ApiError.badRequest(err.message));
+            next(ApiError.internal(err.message));
         }
     }
 
@@ -228,7 +228,7 @@ class ProductController {
                 return next(ApiError.badRequest(('Item is already in your cart')));
         }
         catch(err){
-            next(ApiError.badRequest(err.message));
+            next(ApiError.internal(err.message));
         }
     }
 
@@ -256,7 +256,7 @@ class ProductController {
             return res.json('Product has been successfully deleted from cart');
         }
         catch(err){
-            next(ApiError.badRequest(err.message));
+            next(ApiError.internal(err.message));
         }
     }
 
@@ -285,7 +285,7 @@ class ProductController {
             return res.json('Rating successfully published');
         }
         catch(err){
-            next(ApiError.badRequest(err.message));
+            next(ApiError.internal(err.message));
         }
     }
 
@@ -300,7 +300,7 @@ class ProductController {
                     }});
             return res.json('Rating has been successfully deleted!');
         }catch(err){
-            next(ApiError.badRequest(err.message));
+            next(ApiError.internal(err.message));
         }
     }
 }
@@ -333,7 +333,7 @@ const checkOrCreate = async (nameValue, next) =>{
         return record;
 
     }catch (err){
-        next(ApiError.badRequest(err.message));
+        next(ApiError.internal(err.message));
     }
 }
 

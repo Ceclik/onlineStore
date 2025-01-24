@@ -86,7 +86,7 @@ class UserController{
             return res.json(deletedUser);
         }
         catch (err) {
-            next(ApiError.badRequest(err.message));
+            next(ApiError.internal(err.message));
         }
     }
 
@@ -134,7 +134,7 @@ class UserController{
             return res.json(generateJwt(updatedUser.id, updatedUser.email, updatedUser.role));
         }
         catch (err) {
-            next(ApiError.badRequest(err.message));
+            next(ApiError.internal(err.message));
         }
     }
 }
