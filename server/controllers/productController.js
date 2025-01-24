@@ -75,10 +75,11 @@ class ProductController {
     async addNewProduct(req, res, next){
         try {
             let {name, price, producerId, typeId, country, info} = req.body;
+            let imgName = "";
             if(req.files) {
                 const {img} = req.files;
                 if(img) {
-                    let imgName = uuid.v4() + '.jpg';
+                    imgName = uuid.v4() + '.jpg';
                     await img.mv(path.resolve(__dirname, '..', 'static', imgName));
                 }
             }
@@ -123,7 +124,7 @@ class ProductController {
         try{
             const id = parseInt(req.params.id, 10);
             let {name, price, producerId, typeId, country, info} = req.body;
-            let imgName;
+            let imgName = "";
             if(req.files) {
                 const {img} = req.files;
                 if (img) {

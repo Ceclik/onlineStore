@@ -12,6 +12,13 @@ class TypeController{
         if(!name){
             return next(apiError.badRequest('name is not defined!'));
         }
+
+        if(await Type.findOne({
+            where: {name}
+        })){
+            return next(apiError.badRequest('This type already exists!'))
+        }
+
         await Type.destroy({
             where: {name}
         });
