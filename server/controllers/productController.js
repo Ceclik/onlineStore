@@ -75,9 +75,22 @@ class ProductController {
     async addNewProduct(req, res, next){
         try {
             let {name, price, producerId, typeId, country, info} = req.body;
-            const {img} = req.files;
-            let imgName = uuid.v4() + '.jpg';
-            await img.mv(path.resolve(__dirname, '..', 'static', imgName));
+            if(req.files) {
+                const {img} = req.files;
+                if(img) {
+                    let imgName = uuid.v4() + '.jpg';
+                    await img.mv(path.resolve(__dirname, '..', 'static', imgName));
+                }
+            }
+
+            if(await Product.findOne({
+                where: {
+                    name,
+                    producerId
+                }
+            })){
+                return next(ApiError.badRequest('This product is already exists'));
+            }
 
             const productCountry = await checkOrCreate(country, next)
             const addedProduct = await Product.create({
@@ -120,6 +133,15 @@ class ProductController {
 
             const newProductCountry = await checkOrCreate(country, next)
 
+            if(await Product.findOne({
+                where: {
+                    name,
+                    producerId
+                }
+            })){
+                return next(ApiError.badRequest('This product is already exists'));
+            }
+
             await Product.update(
                 {
                     name, price, producerId, typeId, newProductCountry, imgName
@@ -154,7 +176,7 @@ class ProductController {
                     }
                 }
             }
-            const updatedProduct = Product.findOne({
+            const updatedProduct = await Product.findOne({
                 where: {id}
             });
 
@@ -167,15 +189,12 @@ class ProductController {
     async deleteExistingProduct(req, res, next) {
         try{
             const id = parseInt(req.params.id, 10);
-            const deletedProduct = await Product.findOne({
-                where: {id}
-            });
 
             await Product.destroy({
                 where:{id}
             });
 
-            return res.json(deletedProduct);
+            return res.json("Product has been successfully deleted!");
         }catch (err){
             next(ApiError.badRequest(err.message));
         }

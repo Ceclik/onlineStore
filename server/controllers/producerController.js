@@ -1,5 +1,6 @@
 const apiError = require("../error/apiError");
 const {Producer} = require("../models/models");
+const ApiError = require("../error/apiError");
 
 class ProducerController{
 
@@ -17,12 +18,22 @@ class ProducerController{
         return res.json(allProducers);
     }
     async addNewProducer(req, res, next){
-        const {name, countryId} = req.body;
-        if(!name){
-            return next(apiError.badRequest('name is not defined!'));
+        try {
+            const {name, countryId} = req.body;
+            if (!name) {
+                return next(apiError.badRequest('name is not defined!'));
+            }
+            if(await Producer.findOne({
+                where: {name}
+            })){
+                return next(ApiError.badRequest('This producer is already exists!'));
+            }
+            const addedProducer = await Producer.create({name, countryId});
+            return res.json(addedProducer);
         }
-        const addedProducer = await Producer.create({name, countryId});
-        return res.json(addedProducer);
+        catch (err){
+            next(ApiError.badRequest(err.message));
+        }
     }
 
     async updateExistingProducer(req, res){
