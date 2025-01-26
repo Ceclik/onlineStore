@@ -16,7 +16,7 @@ class ProductController {
         if (!product)
             return next(ApiError.badRequest('Product not found!'));
 
-        let averageRating = await countRating(id);
+        let averageRating = await this.countRating(id);
 
         const productWithRating = {
             ...product.toJSON(),
@@ -307,19 +307,19 @@ class ProductController {
             next(ApiError.internal(err.message));
         }
     }
-}
 
-const countRating = async (productId) => {
-    const ratings = await Rating.findAll({
-        where: {productId}
-    });
+    countRating = async (productId) => {
+        const ratings = await Rating.findAll({
+            where: {productId}
+        });
 
-    let sum = 0;
-    ratings.forEach((rating) => {
-        const ratingVal = parseInt(rating.rating, 10);
-        sum += ratingVal;
-    });
-    return sum / ratings.length;
+        let sum = 0;
+        ratings.forEach((rating) => {
+            const ratingVal = parseInt(rating.rating, 10);
+            sum += ratingVal;
+        });
+        return sum / ratings.length;
+    }
 }
 
 const checkOrCreate = async (nameValue, next) => {

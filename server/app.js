@@ -6,9 +6,19 @@ const router = require('./routes');
 const errorHandling = require('./middleware/errorHadlingMiddleware');
 const fileUpload = require('express-fileupload');
 const path = require('path');
+const {createNamespace} = require('cls-hooked');
 
 const PORT = process.env.PORT;
 const app = express();
+
+// Создаем namespace для контекста
+const clsNamespace = createNamespace('my-app-namespace');
+
+app.use((req, res, next) => {
+    clsNamespace.run(() => {
+        next();
+    });
+});
 
 app.use(cors());
 app.use(express.json());

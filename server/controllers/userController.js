@@ -3,13 +3,7 @@ const {User, Cart} = require('../models/models');
 const ApiError = require('../error/apiError');
 const jwt = require('jsonwebtoken');
 
-const generateJwt = (id, email, role) => {
-    return jwt.sign(
-        {id, email, role},
-        process.env.SECRET_KEY,
-        {expiresIn: '12h'}
-    );
-}
+
 
 const checkEmailExist = async (email) => {
     const originalEmail = await User.findOne({
@@ -32,8 +26,17 @@ const checkPasswordExist = async (hashPassword, originalId) => {
 
 class UserController {
 
-    async register(req, res, next) {
+    generateJwt(id, email, role) {
+        return jwt.sign(
+            {id, email, role},
+            process.env.SECRET_KEY,
+            {expiresIn: '12h'}
+        );
+    }
+
+    register = async (req, res, next) => {
         const {email, password, role} = req.body;
+        console.log(email)
         if (!email || !password) {
             return next(ApiError.badRequest('undefined password or email')) //TODO переделать нормально по видосу с авторизацией
         }
@@ -47,7 +50,7 @@ class UserController {
         const createdUser = await User.create({email, password: hashPassword, role});
         await Cart.create({userId: createdUser.id});
 
-        const token = generateJwt(createdUser.id, email, createdUser.role);
+        const token = this.generateJwt(createdUser.id, email, createdUser.role);
         return res.json(token);
     }
 

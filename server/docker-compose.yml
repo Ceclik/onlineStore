@@ -1,0 +1,20 @@
+version: "3.9"
+
+services:
+  postgres:
+    container_name: postgres
+    image: postgres:15.2-alpine
+    environment:
+      - PGPORT=${DB_PORT}
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    env_file:
+      - .env
+    volumes:
+      - postgres_db:/var/lib/postgresql/data/
+    ports:
+      - "${DB_PORT}:${DB_PORT}"
+
+volumes:
+  postgres_db:
