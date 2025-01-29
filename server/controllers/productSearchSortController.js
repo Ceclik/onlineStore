@@ -1,62 +1,21 @@
-const {Product, Producer, Type} = require('../models/models');
+const {Product} = require('../models/models');
 const ApiError = require('../error/apiError');
-const {Op} = require("sequelize");
+const productSearchSortService = require('../Services/productSearchSortService');
 
 class ProductSearchSortController {
     async nameSearch(req, res, next) {
-        const {name} = req.query;
-
-        if (!name)
-            return next(ApiError.badRequest('Name is not defined'));
-
-        const products = await Product.findAll({
-            where: {name}
-        });
-
-        if (!products)
-            return res.json("not found!")
-
-        return res.json(products);
-    }
-
-    async producerNameSort(req, res, next) {
         try {
-            const {producerName} = req.query;
-            if (!producerName)
-                return next(ApiError.badRequest('Producer name is not defined'));
+            const {name} = req.query;
 
-            const producer = await Producer.findOne({
-                where: {name: producerName}
-            });
-
-            if (!producer)
-                return res.json("not found");
+            if (!name)
+                return next(ApiError.badRequest('Name is not defined'));
 
             const products = await Product.findAll({
-                where: {producerId: producer.id}
-            });
-            return res.json(products);
-        } catch (err) {
-            next(ApiError.internal(err.message));
-        }
-    }
-
-    async typeSort(req, res, next) {
-        try {
-            const {type} = req.query;
-            if (!type)
-                return next(ApiError.badRequest('Type is not defined'));
-
-            const typeData = await Type.findOne({
-                where: {name: type}
+                where: {name}
             });
 
-            if (!typeData)
-                return res.json('not found!')
-
-            const products = await Product.findAll({
-                where: {typeId: typeData.id}
-            });
+            if (!products)
+                return res.json("not found!")
 
             return res.json(products);
         } catch (err) {
@@ -64,25 +23,18 @@ class ProductSearchSortController {
         }
     }
 
-    async priceSort(req, res, next) {
+    async sort(req, res, next) {
         try {
-            const {minPrice, maxPrice, sortOrder} = req.query;
+            const {producerName, type, minPrice, maxPrice, sortOrder} = req.query;
+            let response;
+            if (producerName && !type && !minPrice && !maxPrice && !sortOrder)
+                response = await productSearchSortService.producerNameSort(res, producerName);
+            else if (type && !minPrice && !maxPrice && !sortOrder && !producerName)
+                response = await productSearchSortService.typeSort(res, type);
+            else if (((minPrice || maxPrice) && sortOrder) && !type && !producerName)
+                response = await productSearchSortService.priceSort(minPrice, maxPrice, sortOrder);
 
-            if (!minPrice && !maxPrice) {
-                return next(ApiError.badRequest('Prices are not defined!'));
-            }
-
-            const products = await Product.findAll({
-                where: {
-                    price: {
-                        [Op.gte]: minPrice || 0,
-                        [Op.lte]: maxPrice || Number.MAX_VALUE
-                    }
-                },
-                order: [['price', sortOrder || 'ASC']]
-            });
-
-            return res.json(products);
+            return res.json(response || 'not found!');
         } catch (err) {
             next(ApiError.internal(err.message));
         }

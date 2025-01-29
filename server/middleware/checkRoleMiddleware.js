@@ -1,4 +1,5 @@
-const jwt = require('jsonwebtoken');
+const ApiError = require('../error/apiError');
+const {getNamespace} = require('cls-hooked');
 
 module.exports = function(role){
     return function (req, res, next) {
@@ -6,22 +7,12 @@ module.exports = function(role){
             next();
         }
         try{
-            const token = req.headers.authorization.split(' ')[1];
-            if (!token){
-                return res.status(401).json({message: 'User is not authorized'});
-            }
-
-            const decodedUser = jwt.verify(token, process.env.SECRET_KEY);
-
-            if(decodedUser.role !== role){
-                return res.statusCode(403).json({message: "You haven't got permission"});
-            }
-
-            req.user = decodedUser;
-
+            const clsNamespace = getNamespace('my-app-namespace');
+            if (clsNamespace.get('userRole' !== role))
+                next(ApiError.forbidden())
             next();
         }catch (e){
-            res.status(401).json({message: 'User is not authorized'});
+            next(ApiError.unauthorized());
         }
 }
 

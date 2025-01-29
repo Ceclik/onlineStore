@@ -16,7 +16,7 @@ class TypeController {
         if (await Type.findOne({
             where: {name}
         })) {
-            return next(apiError.badRequest('This type already exists!'))
+            return next(apiError.badRequest('This type already exist'));
         }
 
         await Type.destroy({

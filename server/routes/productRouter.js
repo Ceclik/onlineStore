@@ -5,18 +5,16 @@ const productSearchSortController = require('../controllers/productSearchSortCon
 const checkRoleMiddleware = require('../middleware/checkRoleMiddleware');
 const authMiddleware = require('../middleware/authMiddleware');
 
-router.get('/getOne/:id', productController.getSingleProduct);
-router.get('/all', productController.getAllProduct);
-router.post('/add', checkRoleMiddleware('ADMIN'), productController.addNewProduct);
-router.put('/update/:id', checkRoleMiddleware('ADMIN'), productController.updateExistingProduct);
-router.delete('/delete/:id', checkRoleMiddleware('ADMIN'), productController.deleteExistingProduct);
-router.post('/addToCart/:productId', authMiddleware, productController.addProductToCart);
-router.delete('/deleteFromCart/:productId', authMiddleware, productController.deleteProductFromCart);
-router.post('/addRating/:productId', authMiddleware, productController.addRating);
-router.delete('/deleteRating/:productId', authMiddleware, productController.deleteRating);
-router.get('/nameSearch', productSearchSortController.nameSearch);
-router.get('/producerNameSort', productSearchSortController.producerNameSort);
-router.get('/typeSort', productSearchSortController.typeSort);
-router.get('/priceSort', productSearchSortController.priceSort);
+router.get('/all', productController.getAllProducts);
+router.post('/add', authMiddleware, checkRoleMiddleware('ADMIN'), productController.addNewProduct);
+router.put('/update/:id', authMiddleware, checkRoleMiddleware('ADMIN'), productController.updateExistingProduct);
+router.delete('/delete/:id', authMiddleware, checkRoleMiddleware('ADMIN'), productController.deleteExistingProduct);
+router.post('/addToCart/:id', authMiddleware, productController.addProductToCart);
+router.delete('/deleteFromCart/:id', authMiddleware, productController.deleteProductFromCart);
+router.post('/addRating/:id', authMiddleware, productController.addRating);
+router.delete('/deleteRating/:id', authMiddleware, productController.deleteRating);
+router.get('/search', productSearchSortController.nameSearch);
+router.get('/sort', productSearchSortController.sort);
+router.get('/:id', productController.getSingleProduct);
 
 module.exports = router;

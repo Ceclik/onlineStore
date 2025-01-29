@@ -1,32 +1,18 @@
 const uuid = require('uuid');
 const path = require('path');
-const {Product, Country, Description, CartItem, Cart, Rating} = require('../models/models');
+const {Product, Rating} = require('../models/models');
 const ApiError = require('../error/apiError');
 const jwt = require('jsonwebtoken');
+const productService = require('../Services/productService');
 
 class ProductController {
 
     async getSingleProduct(req, res, next) {
         const {id} = req.params;
-        const product = await Product.findOne({
-            where: {id},
-            include: [{model: Description, as: 'info'}]
-        });
-
-        if (!product)
-            return next(ApiError.badRequest('Product not found!'));
-
-        let averageRating = await countRating(id);
-
-        const productWithRating = {
-            ...product.toJSON(),
-            averageRating: averageRating
-        };
-
-        return res.json(productWithRating);
+        return res.json(await productService.getSingleProduct(next, id));
     }
 
-    async getAllProduct(req, res, next) {
+    async getAllProducts(req, res, next) {
         try {
             let {producerId, typeId, limit, page} = req.query;
 
@@ -34,37 +20,7 @@ class ProductController {
             limit = limit || 9;
             let offset = page * limit - limit;
 
-            let products
-            if (!typeId && producerId) {
-                products = await Product.findAndCountAll({
-                    where: {producerId},
-                    include: [{model: Description, as: 'info'}],
-                    limit,
-                    offset
-                });
-            } else if (typeId && !producerId) {
-                products = await Product.findAndCountAll({
-                    where: {typeId},
-                    include: [{model: Description, as: 'info'}, {model: Rating}],
-                    limit,
-                    offset
-                });
-            } else if (typeId && producerId) {
-                products = await Product.findAndCountAll({
-                    where: {typeId, producerId},
-                    include: [{model: Description, as: 'info'}],
-                    limit,
-                    offset
-                });
-            } else {
-                products = await Product.findAndCountAll({
-                    include: [{model: Description, as: 'info'}],
-                    limit,
-                    offset
-                });
-            }
-
-            return res.json(products);
+            return res.json(await productService.getAllProducts(typeId, producerId, limit, offset));
         } catch (err) {
             next(ApiError.internal(err.message));
         }
@@ -72,7 +28,8 @@ class ProductController {
 
     async addNewProduct(req, res, next) {
         try {
-            let {name, price, producerId, typeId, country, info} = req.body;
+            let {name, price, producerId, typeId, countryId, info} = req.body;
+
             let imgName = "";
             if (req.files) {
                 const {img} = req.files;
@@ -82,36 +39,7 @@ class ProductController {
                 }
             }
 
-            if (await Product.findOne({
-                where: {
-                    name,
-                    producerId
-                }
-            })) {
-                return next(ApiError.badRequest('This product is already exists'));
-            }
-
-            const productCountry = await checkOrCreate(country, next)
-            const addedProduct = await Product.create({
-                name,
-                price,
-                image: imgName,
-                producerId,
-                typeId,
-                countryId: productCountry.id
-            });
-
-            if (info) {
-                info = JSON.parse(info);
-                info.forEach((data) => {
-                    Description.create({
-                        title: data.title,
-                        description: data.description,
-                        productId: addedProduct.id
-                    });
-                })
-            }
-            return res.json(addedProduct);
+            return res.json(await productService.addNewProduct(producerId, countryId, price, name, imgName, typeId, info, next));
         } catch (err) {
             next(ApiError.internal(err.message));
         }
@@ -120,7 +48,7 @@ class ProductController {
     async updateExistingProduct(req, res, next) {
         try {
             const id = parseInt(req.params.id, 10);
-            let {name, price, producerId, typeId, country, info} = req.body;
+            let {name, price, producerId, typeId, countryId, info} = req.body;
             let imgName = "";
             if (req.files) {
                 const {img} = req.files;
@@ -129,56 +57,7 @@ class ProductController {
                 }
             }
 
-            const newProductCountry = await checkOrCreate(country, next)
-
-            if (await Product.findOne({
-                where: {
-                    name,
-                    producerId
-                }
-            })) {
-                return next(ApiError.badRequest('This product is already exists'));
-            }
-
-            await Product.update(
-                {
-                    name, price, producerId, typeId, newProductCountry, imgName
-                },
-                {
-                    where: {id}
-                });
-
-            if (info) {
-                info = JSON.parse(info);
-
-                const existingDescriptions = await Description.findAll({where: {productId: id}});
-
-                for (const data of info) {
-                    const existingDescription = existingDescriptions.find(d => d.title === data.title);
-                    if (existingDescription) {
-                        await Description.update(
-                            {
-                                title: data.title,
-                                description: data.description
-                            },
-                            {
-                                where: {id: existingDescription.id}
-                            }
-                        );
-                    } else {
-                        await Description.create({
-                            title: data.title,
-                            description: data.description,
-                            productId: id
-                        });
-                    }
-                }
-            }
-            const updatedProduct = await Product.findOne({
-                where: {id}
-            });
-
-            return res.json(updatedProduct);
+            return res.json(await productService.updateProduct(producerId, price, typeId, countryId, imgName, name, info, id, next));
         } catch (err) {
             next(ApiError.internal(err.message));
         }
@@ -200,28 +79,9 @@ class ProductController {
 
     async addProductToCart(req, res, next) {
         try {
-            const user = jwt.decode(req.headers.authorization.split(' ')[1]);
-            const {productId} = req.params;
+            const {id} = req.params;
 
-            const product = await Product.findOne({
-                where: {id: productId}
-            });
-
-            if (!product)
-                return next(ApiError.badRequest("Product doesn't exist"));
-
-            const cart = await Cart.findOne({
-                where: {userId: user.id}
-            });
-
-            const created = await CartItem.findOrCreate({
-                where: {
-                    cartId: cart.id,
-                    productId
-                }
-            });
-
-            if (created)
+            if (await productService.addToCart(req, id, next))
                 return res.json('Item has been successfully added');
             else
                 return next(ApiError.badRequest(('Item is already in your cart')));
@@ -232,30 +92,9 @@ class ProductController {
 
     async deleteProductFromCart(req, res, next) {
         try {
-            const user = jwt.decode(req.headers.authorization.split(' ')[1]);
-            const {productId} = req.params;
+            const {id} = req.params;
 
-            const cart = await Cart.findOne({
-                where: {userId: user.id}
-            });
-
-            if (!await CartItem.findOne({
-                where:
-                    {
-                        productId,
-                        cartId: cart.id
-                    }
-            })) {
-                return next(ApiError.badRequest('There is no such product in your cart'));
-            }
-
-            await CartItem.destroy({
-                where:
-                    {
-                        productId,
-                        cartId: cart.id
-                    }
-            });
+            await productService.deleteFromCart(req, id, next);
 
             return res.json('Product has been successfully deleted from cart');
         } catch (err) {
@@ -265,25 +104,10 @@ class ProductController {
 
     async addRating(req, res, next) {
         try {
-            const user = jwt.decode(req.headers.authorization.split(' ')[1]);
-            const {productId} = req.params;
+            const {id} = req.params;
             const {rating} = req.body;
 
-            const existingRating = await Rating.findOne({
-                where: {
-                    userId: user.id,
-                    productId
-                }
-            });
-
-            if (!existingRating) {
-                await Rating.create({
-                    userId: user.id,
-                    productId,
-                    rating
-                });
-            } else
-                return next(ApiError.badRequest('Your rating on this product is already exist!'));
+            await productService.addRating(req, id, rating, next);
 
             return res.json('Rating successfully published');
         } catch (err) {
@@ -294,50 +118,18 @@ class ProductController {
     async deleteRating(req, res, next) {
         try {
             const user = jwt.decode(req.headers.authorization.split(' ')[1]);
-            const {productId} = req.params;
+            const {id} = req.params;
             await Rating.destroy({
                 where:
                     {
                         userId: user.id,
-                        productId
+                        productId: id
                     }
             });
             return res.json('Rating has been successfully deleted!');
         } catch (err) {
             next(ApiError.internal(err.message));
         }
-    }
-}
-
-const countRating = async (productId) => {
-    const ratings = await Rating.findAll({
-        where: {productId}
-    });
-
-    let sum = 0;
-    ratings.forEach((rating) => {
-        const ratingVal = parseInt(rating.rating, 10);
-        sum += ratingVal;
-    });
-    return sum / ratings.length;
-}
-
-const checkOrCreate = async (nameValue, next) => {
-    try {
-        const [record, created] = await Country.findOrCreate({
-            where: {name: nameValue},
-            defaults: {name: nameValue}
-        });
-
-        if (created) {
-            console.log('Запись создана:', record);
-        } else {
-            console.log('Запись уже существует:', record);
-        }
-        return record;
-
-    } catch (err) {
-        next(ApiError.internal(err.message));
     }
 }
 

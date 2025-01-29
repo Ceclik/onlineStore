@@ -1,36 +1,27 @@
-const apiError = require("../error/apiError");
 const {Producer} = require("../models/models");
 const ApiError = require("../error/apiError");
+const producerService = require('../Services/producerService');
 
 class ProducerController {
 
-    async getSingleProducer(req, res) {
-        const {id} = req.params;
-        return res.json(await Producer.findOne(
-            {
-                where: {id}
-            }
-        ));
+    async getSingleProducer(req, res, next) {
+        try {
+            const {id} = req.params;
+            return res.json(await producerService.getSingleProducer(id, next));
+        } catch (err) {
+            next(ApiError.internal(err.message));
+        }
     }
 
     async getAllProducers(req, res) {
-        const allProducers = await Producer.findAll();
-        return res.json(allProducers);
+        return res.json(await producerService.getAllProducers());
     }
 
     async addNewProducer(req, res, next) {
         try {
-            const {name, countryId} = req.body;
-            if (!name) {
-                return next(apiError.badRequest('name is not defined!'));
-            }
-            if (await Producer.findOne({
-                where: {name}
-            })) {
-                return next(ApiError.badRequest('This producer is already exists!'));
-            }
-            const addedProducer = await Producer.create({name, countryId});
-            return res.json(addedProducer);
+            const {name, countryId, typeId} = req.body;
+
+            return res.json(await producerService.addNewProducer(name, typeId, countryId, next));
         } catch (err) {
             next(ApiError.internal(err.message));
         }
@@ -39,31 +30,27 @@ class ProducerController {
     async updateExistingProducer(req, res, next) {
         try {
             const id = parseInt(req.params.id, 10);
-            const {newName} = req.body;
+            const {name} = req.body;
 
-            await Producer.update(
-                {name: newName},
-                {where: {id}}
-            );
-
-            const updatedProducer = await Producer.findOne({
-                where: {id}
-            });
-
-            return res.json(updatedProducer);
+            return res.json(await producerService.updateExistingProducer(name, id, next));
         } catch (err) {
             next(ApiError.internal(err.message));
         }
     }
 
     async deleteExistingProducer(req, res, next) {
+
         const {id} = req.params;
         if (!id) {
-            return next(apiError.badRequest('producer is not defined!'));
+            return next(ApiError.badRequest());
         }
-        await Producer.destroy({
+
+        const deletedUsers = await Producer.destroy({
             where: {id}
         });
+
+        if (deletedUsers === 0)
+            return next(ApiError.badRequest());
 
         return res.json("Producer has been successfully deleted!");
     }
