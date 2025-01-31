@@ -1,5 +1,4 @@
 const ApiError = require('../error/apiError');
-const {getNamespace} = require('cls-hooked');
 
 module.exports = function(role){
     return function (req, res, next) {
@@ -7,8 +6,7 @@ module.exports = function(role){
             next();
         }
         try{
-            const clsNamespace = getNamespace('my-app-namespace');
-            if (clsNamespace.get('userRole' !== role))
+            if (req.user.role !== role)
                 next(ApiError.forbidden())
             next();
         }catch (e){

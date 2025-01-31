@@ -1,5 +1,4 @@
 const jwt = require('jsonwebtoken');
-const {getNamespace} = require('cls-hooked');
 const ApiError = require('../error/apiError');
 
 module.exports = function (req, res, next) {
@@ -12,10 +11,7 @@ module.exports = function (req, res, next) {
             next(ApiError.unauthorized());
         }
 
-        const clsNamespace = getNamespace('my-app-namespace');
-        const decodedUser = jwt.verify(token, process.env.SECRET_KEY);
-        req.user = decodedUser;
-        clsNamespace.set('userRole', decodedUser.role);
+        req.user = jwt.verify(token, process.env.SECRET_KEY);
         next();
     }catch (e){
         next(ApiError.unauthorized());

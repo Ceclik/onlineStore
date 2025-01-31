@@ -2,7 +2,7 @@ const {Product, Description, Rating, Cart, CartItem} = require("../models/models
 const ApiError = require("../error/apiError");
 
 class ProductService {
-    async getSingleProduct(next, id) {
+    async getSingleProduct(next, id, res) {
         try {
             const product = await Product.findOne({
                 where: {id},
@@ -10,7 +10,7 @@ class ProductService {
             });
 
             if (!product)
-                return next(ApiError.badRequest('Product not found!'));
+                throw ApiError.badRequest('Product not found!');
 
             let averageRating = await this.countRating(id);
 
@@ -19,7 +19,7 @@ class ProductService {
                 averageRating: averageRating
             };
         } catch (err) {
-            next(ApiError.internal(err.message));
+            return next(ApiError.internal(err.message));
         }
     }
 
@@ -64,7 +64,7 @@ class ProductService {
                 producerId
             }
         })) {
-            return next(ApiError.badRequest('This product is already exists'));
+            throw ApiError.badRequest('This product is already exists');
         }
 
         const addedProduct = await Product.create({
@@ -97,7 +97,7 @@ class ProductService {
                 producerId
             }
         })) {
-            return next(ApiError.badRequest('This product is already exists'));
+            throw ApiError.badRequest('This product is already exists');
         }
 
         await Product.update(
@@ -145,7 +145,7 @@ class ProductService {
         });
 
         if (!product)
-            return next(ApiError.badRequest("Product doesn't exist"));
+            throw ApiError.badRequest("Product doesn't exist");
 
         const cart = await Cart.findOne({
             where: {userId: req.user.id}
@@ -171,7 +171,7 @@ class ProductService {
                     cartId: cart.id
                 }
         })) {
-            return next(ApiError.badRequest('There is no such product in your cart'));
+            throw ApiError.badRequest('There is no such product in your cart');
         }
 
         await CartItem.destroy({
@@ -198,7 +198,7 @@ class ProductService {
                 rating
             });
         } else
-            return next(ApiError.badRequest('Your rating on this product is already exist!'));
+            throw ApiError.badRequest('Your rating on this product is already exist!');
     }
 
     countRating = async (productId) => {

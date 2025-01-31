@@ -1,15 +1,18 @@
+require('dotenv').config();
 const {
     User, Cart, Producer, Product, Description, Type, Country, TypeBrand
 } = require('../models/models');
-const sequelize = require('./db');
+const sequelize = require('../database/db');
+const bcrypt = require("bcrypt");
 
 async function seedDatabase() {
     try {
+        await sequelize.authenticate();
         await sequelize.sync({force: true});
 
         const users = await User.bulkCreate([
-            {email: 'user@g.com', password: 'user', role: 'USER'},
-            {email: 'admin@g.com', password: 'admin', role: 'ADMIN'}
+            {email: 'user@g.com', password: await bcrypt.hash('user', 5), role: 'USER'},
+            {email: 'admin@g.com', password: await bcrypt.hash('admin', 5), role: 'ADMIN'}
         ]);
 
         const countries = await Country.bulkCreate([

@@ -9,13 +9,12 @@ class ProductController {
 
     async getSingleProduct(req, res, next) {
         const {id} = req.params;
-        return res.json(await productService.getSingleProduct(next, id));
+        return res.json(await productService.getSingleProduct(next, id, res));
     }
 
     async getAllProducts(req, res, next) {
         try {
             let {producerId, typeId, limit, page} = req.query;
-
             page = page || 1;
             limit = limit || 9;
             let offset = page * limit - limit;
