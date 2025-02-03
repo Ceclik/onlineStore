@@ -10,8 +10,13 @@ class UserController {
     }
 
     async login(req, res, next) {
-        const {email, password} = req.body;
-        return res.json(await userService.login(email, password, next));
+        try {
+            const {email, password} = req.body;
+            if (!email || !password) throw ApiError.badRequest();
+            return res.json(await userService.login(email, password, next));
+        }catch (e){
+            next(e);
+        }
     }
 
     async check(req, res) {

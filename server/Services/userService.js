@@ -54,11 +54,11 @@ class UserService {
         });
 
         if (!user) {
-            return next(ApiError.badRequest('no user with such email'));
+            throw ApiError.badRequest('no user with such email');
         }
         let comparedPassword = bcrypt.compareSync(password, user.password);
         if (!comparedPassword) {
-            return next(ApiError.badRequest('wrong password'));
+            throw ApiError.badRequest('wrong password');
         }
 
         return this.generateJwt(user.id, email, user.role);

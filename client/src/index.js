@@ -6,12 +6,10 @@ import UserStore from "./store/UserStore";
 import ProductStore from "./store/ProductStore";
 
 export const Context = createContext(null);
+console.log('loh ' + process.env.REACT_APP_API_URL);
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-    /*<React.StrictMode>
-      <App />
-    </React.StrictMode>*/
 
     <Context.Provider value={{
         user: new UserStore(),
@@ -22,4 +20,3 @@ root.render(
     </Context.Provider>,
 );
 
-//reportWebVitals();
