@@ -1,7 +1,10 @@
 import React from 'react';
 import {Container} from "react-bootstrap";
+import {useNavigate} from "react-router-dom";
+import {ADMIN_ROUTE} from "../utils/consts";
 
 const AuthPage = () => {
+    const navigate = useNavigate();
     return (
         <div className="d-flex justify-content-center align-items-center vh-100"
                    style={{backgroundColor: "#f0f0f0", height: window.innerHeight - 100}}>
@@ -30,7 +33,10 @@ const AuthPage = () => {
                     backgroundColor: "#A4E5B3",
                     borderRadius: "20px",
                     padding: "10px",
-                }} onClick={/*TODO*/() => console.log('Enter button has been clicked')}>
+                }} onClick={/*TODO*/() => {
+                    console.log('Enter button has been clicked');
+                    navigate(ADMIN_ROUTE)
+                }}>
                     Войти
                 </button>
             </div>
