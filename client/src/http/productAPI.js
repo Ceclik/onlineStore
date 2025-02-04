@@ -18,12 +18,16 @@ export const createProducer = async (producer, typeId) => {
     }catch (e){
         console.log(e.message);
     }
-
 }
 
 export const fetchProducers = async () => {
     const {data} = await $host.get('api/producer/all');
     return data;
+}
+
+export const deleteProducer = async (producerId) => {
+    const {message} = await $authHost.delete('api/producer/delete/' + producerId);
+    return message;
 }
 
 export const createProduct = async (product) => {
