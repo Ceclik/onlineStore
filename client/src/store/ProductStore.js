@@ -10,10 +10,15 @@ export default class ProductStore {
         this._products = []
         this._selectedType = {}
         this._selectedProducer = {}
+        this._selectedProduct = {}
         this._page = 1;
         this._totalCount = 0;
         this._limit = 3;
         makeAutoObservable(this);
+    }
+
+    setSelectedProduct(product){
+        this._selectedProduct = product;
     }
 
     setLimit(limit){
@@ -88,6 +93,10 @@ export default class ProductStore {
 
     get page(){
         return this._page;
+    }
+
+    get selectedProduct() {
+        return this._selectedProduct;
     }
 
 }

@@ -5,6 +5,7 @@ import CreateProducer from "../components/modals/CreateProducer";
 import CreateProduct from "../components/modals/CreateProduct";
 import DeleteProducer from "../components/modals/DeleteProducer";
 import DeleteType from "../components/modals/DeleteType";
+import DeleteProduct from "../components/modals/DeleteProduct";
 
 const AdminPage = () => {
     const [producerVisible, setProducerVisible] = useState(false);
@@ -12,6 +13,7 @@ const AdminPage = () => {
     const [typeVisible, setTypeVisible] = useState(false);
     const [typeDeleteVisible, setTypeDeleteVisible] = useState(false);
     const [productVisible, setProductVisible] = useState(false);
+    const [productDeleteVisible, setProductDeleteVisible] = useState(false);
     return (
         <Container className={'d-flex flex-column'}>
             <Button variant={'outline-dark'} className={'mt-4 p-2'} onClick={() => setProducerVisible(true)}>Добавить
@@ -24,12 +26,15 @@ const AdminPage = () => {
                 тип</Button>
             <Button variant={'outline-dark'} className={'mt-4 p-2'} onClick={() => setProductVisible(true)}>Добавить
                 товар</Button>
+            <Button variant={'outline-dark'} className={'mt-4 p-2'} onClick={() => setProductDeleteVisible(true)}>Удалить
+                товар</Button>
 
             <CreateType show={typeVisible} onHide={() => setTypeVisible(false)}/>
             <DeleteType show={typeDeleteVisible} onHide={() => setTypeDeleteVisible(false)}/>
             <CreateProducer show={producerVisible} onHide={() => setProducerVisible(false)}/>
             <DeleteProducer show={deleteProducerVisible} onHide={() => setDeleteProducerVisible(false)}/>
             <CreateProduct show={productVisible} onHide={() => setProductVisible(false)}/>
+            <DeleteProduct show={productDeleteVisible} onHide={() => setProductDeleteVisible(false)}/>
         </Container>
     );
 };
