@@ -15,7 +15,9 @@ class ProducerService {
         }
 
         const newProducer = await Producer.create({name, countryId, typeId});
-        await TypeBrand.create({producerId: newProducer.id, typeId});
+        if(typeId) {
+            await TypeBrand.create({producerId: newProducer.id, typeId});
+        }
         return newProducer;
     }
 

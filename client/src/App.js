@@ -9,7 +9,7 @@ import {check} from "./http/userAPI";
 import {Spinner} from "react-bootstrap";
 
 const App = observer(() => {
-   /* const {user} = useContext(Context);
+    const {user} = useContext(Context);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -21,7 +21,7 @@ const App = observer(() => {
 
     if (loading) {
         return <Spinner animation={"grow"}/>
-    }*/
+    }
 
     return (
         <BrowserRouter>

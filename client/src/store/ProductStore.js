@@ -3,14 +3,14 @@ import {makeAutoObservable} from "mobx";
 export default class ProductStore {
     constructor() {
        this._types = [
-           {id: 1, name: "Веник"},
+           /*{id: 1, name: "Веник"},
            {id: 2, name: "Сковорода"},
            {id: 3, name: "Гвоздь"},
-           {id: 4, name: "Молоток"}
+           {id: 4, name: "Молоток"}*/
        ]
         this._producers = [
-            {id: 1, name: "Веник Гуд Компани"},
-            {id: 2, name: "Нагар Про"}
+            /*{id: 1, name: "Веник Гуд Компани"},
+            {id: 2, name: "Нагар Про"}*/
         ]
 
         this._countries = [
@@ -18,12 +18,12 @@ export default class ProductStore {
         ]
 
         this._products = [
-            {id: 1, name: "Соломенный веник", price: 51, rating: 8, img: "", producerId: 1, typeId: 1, countryId: 1},
+            /*{id: 1, name: "Соломенный веник", price: 51, rating: 8, img: "", producerId: 1, typeId: 1, countryId: 1},
             {id: 2, name: "Сковорода для макарон", price: 143, rating: 5, img: "", producerId: 2, typeId: 2, countryId: 1},
             {id: 3, name: "Сковорода для макарон", price: 143, rating: 5, img: "", producerId: 2, typeId: 2, countryId: 1},
             {id: 4, name: "Сковорода для макарон", price: 143, rating: 5, img: "", producerId: 2, typeId: 2, countryId: 1},
             {id: 5, name: "Сковорода для макарон", price: 143, rating: 5, img: "", producerId: 2, typeId: 2, countryId: 1},
-            {id: 6, name: "Сковорода для макарон", price: 143, rating: 5, img: "", producerId: 2, typeId: 2, countryId: 1}
+            {id: 6, name: "Сковорода для макарон", price: 143, rating: 5, img: "", producerId: 2, typeId: 2, countryId: 1}*/
         ]
 
         this._selectedType = {}

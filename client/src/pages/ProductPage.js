@@ -1,28 +1,20 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {Card, Col, Container, Image, Row} from "react-bootstrap";
+import {useParams} from "react-router-dom";
+import {fetchOneProduct} from "../http/deviceAPI";
 
 const ProductPage = () => {
-    const product = {
-        id: 1,
-        name: "Соломенный веник",
-        price: 51,
-        rating: 8,
-        img: "",
-        producerId: 1,
-        typeId: 1,
-        countryId: 1
-    }
-    const description = [
-        {id: 1, title: "Скрок службы", description: "54"},
-        {id: 1, title: "Скрок службы", description: "54"},
-        {id: 1, title: "Скрок службы", description: "54"},
-        {id: 1, title: "Скрок службы", description: "54"}
-    ]
+    const [product, setProduct] = useState({info: []});
+    const {id} = useParams();
+
+    useEffect(() => {
+        fetchOneProduct(id).then(data => setProduct(data));
+    }, []);
 
     return (
         <Container className={"mt-3"}>
             <Col md={4}>
-                <Image width={300} height={300} src={product.img}/>
+                <Image width={300} height={300} src={process.env.REACT_APP_API_URL + product.img}/>
             </Col>
             <Col md={4}>
                 <Row>
@@ -39,7 +31,7 @@ const ProductPage = () => {
             </Col>
             <Row>
                 <h1>Характеристики</h1>
-                {description.map((info, index) =>
+                {product.info.map((info, index) =>
                     <Row key={info.id} className={"d-flex flex-column m-3"} style={{background: (index % 2 === 0 ? 'lightgray' : 'transparent'), padding: 10}}>
                         {info.title}: {info.description}
                     </Row>

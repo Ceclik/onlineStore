@@ -1,7 +1,14 @@
 import React, {useState} from 'react';
 import {Button, Form, Modal} from "react-bootstrap";
+import {createProducer} from "../../http/deviceAPI";
 
 const CreateProducer = ({show, onHide}) => {
+
+    const [value, setValue] = useState('');
+    const addProducer = () => {
+        createProducer({name: value}).then(data => setValue(''));
+        onHide();
+    }
 
     return (
         <Modal show={show} onHide={onHide}>
@@ -11,6 +18,8 @@ const CreateProducer = ({show, onHide}) => {
             <Modal.Body>
                 <Form>
                     <Form.Control
+                        value={value}
+                        onChange={e => setValue(e.target.value)}
                         placeholder={"Название производителя"}
                     />
                 </Form>
@@ -19,7 +28,7 @@ const CreateProducer = ({show, onHide}) => {
                 <Button variant="outline-danger" onClick={onHide}>
                     Закрыть
                 </Button>
-                <Button variant="outline-success" onClick={onHide}>
+                <Button variant="outline-success" onClick={addProducer}>
                     Сохранить
                 </Button>
             </Modal.Footer>
