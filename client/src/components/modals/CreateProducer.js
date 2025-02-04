@@ -1,12 +1,15 @@
-import React, {useState} from 'react';
-import {Button, Form, Modal} from "react-bootstrap";
+import React, {useContext, useState} from 'react';
+import {Button, Dropdown, DropdownMenu, Form, Modal} from "react-bootstrap";
 import {createProducer} from "../../http/productAPI";
+import {Context} from "../../index";
+import {observer} from "mobx-react-lite";
 
-const CreateProducer = ({show, onHide}) => {
+const CreateProducer = observer(({show, onHide}) => {
 
+    const {product} = useContext(Context);
     const [value, setValue] = useState('');
     const addProducer = () => {
-        createProducer({name: value}).then(data => setValue(''));
+        createProducer({name: value, typeId: product.selectedType.id}).then(data => setValue(''));
         onHide();
     }
 
@@ -23,6 +26,15 @@ const CreateProducer = ({show, onHide}) => {
                         placeholder={"Название производителя"}
                     />
                 </Form>
+                <Dropdown className={'mt-3 mb-3'}>
+                    <Dropdown.Toggle>{product.selectedType.name || 'Выберите тип производимых товаров'}</Dropdown.Toggle>
+                    <DropdownMenu>
+                        {product.types.map(type =>
+                            <Dropdown.Item onClick={() => product.setSelectedType(type)}
+                                           key={type.id}>{type.name}</Dropdown.Item>
+                        )}
+                    </DropdownMenu>
+                </Dropdown>
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="outline-danger" onClick={onHide}>
@@ -34,6 +46,6 @@ const CreateProducer = ({show, onHide}) => {
             </Modal.Footer>
         </Modal>
     );
-};
+});
 
 export default CreateProducer;

@@ -11,9 +11,9 @@ export const fetchTypes = async () => {
     return data;
 }
 
-export const createProducer = async (producer) => {
+export const createProducer = async (producer, typeId) => {
     try {
-        const {data} = await $authHost.post('api/producer/add', producer);
+        const {data} = await $authHost.post('api/producer/add', producer, typeId);
         return data;
     }catch (e){
         console.log(e.message);
