@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {Button, Form, Modal} from "react-bootstrap";
-import {createType} from "../../http/deviceAPI";
+import {createType} from "../../http/productAPI";
 
 const CreateType = ({show, onHide}) => {
 

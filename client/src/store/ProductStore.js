@@ -2,40 +2,39 @@ import {makeAutoObservable} from "mobx";
 
 export default class ProductStore {
     constructor() {
-       this._types = [
-           /*{id: 1, name: "Веник"},
-           {id: 2, name: "Сковорода"},
-           {id: 3, name: "Гвоздь"},
-           {id: 4, name: "Молоток"}*/
-       ]
-        this._producers = [
-            /*{id: 1, name: "Веник Гуд Компани"},
-            {id: 2, name: "Нагар Про"}*/
-        ]
-
+        this._types = []
+        this._producers = []
         this._countries = [
             {id: 1, name: "Беларусь"}
         ]
-
-        this._products = [
-            /*{id: 1, name: "Соломенный веник", price: 51, rating: 8, img: "", producerId: 1, typeId: 1, countryId: 1},
-            {id: 2, name: "Сковорода для макарон", price: 143, rating: 5, img: "", producerId: 2, typeId: 2, countryId: 1},
-            {id: 3, name: "Сковорода для макарон", price: 143, rating: 5, img: "", producerId: 2, typeId: 2, countryId: 1},
-            {id: 4, name: "Сковорода для макарон", price: 143, rating: 5, img: "", producerId: 2, typeId: 2, countryId: 1},
-            {id: 5, name: "Сковорода для макарон", price: 143, rating: 5, img: "", producerId: 2, typeId: 2, countryId: 1},
-            {id: 6, name: "Сковорода для макарон", price: 143, rating: 5, img: "", producerId: 2, typeId: 2, countryId: 1}*/
-        ]
-
+        this._products = []
         this._selectedType = {}
         this._selectedProducer = {}
+        this._page = 1;
+        this._totalCount = 0;
+        this._limit = 3;
         makeAutoObservable(this);
     }
 
+    setLimit(limit){
+        this._limit = limit;
+    }
+
+    setTotalCount(totalCount){
+        this._totalCount = totalCount;
+    }
+
+    setPage(page){
+        this._page = page;
+    }
+
     setSelectedProducer(producer){
+        this.setPage(1);
         this._selectedProducer = producer;
     }
 
     setSelectedType(type){
+        this.setPage(1);
         this._selectedType = type;
     }
 
@@ -77,6 +76,18 @@ export default class ProductStore {
 
     get selectedProducer(){
         return this._selectedProducer;
+    }
+
+    get limit(){
+        return this._limit;
+    }
+
+    get totalCount(){
+        return this._totalCount;
+    }
+
+    get page(){
+        return this._page;
     }
 
 }

@@ -1,7 +1,7 @@
 import React, {useContext, useEffect, useState} from 'react';
 import {Button, Col, Dropdown, DropdownMenu, Form, Modal, Row} from "react-bootstrap";
 import {Context} from "../../index";
-import {createProduct, fetchProducers, fetchProducts, fetchTypes} from "../../http/deviceAPI";
+import {createProduct, fetchProducers, fetchProducts, fetchTypes} from "../../http/productAPI";
 import {observer} from "mobx-react-lite";
 
 const CreateProduct = observer(({show, onHide}) => {

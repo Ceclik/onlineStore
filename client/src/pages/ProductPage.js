@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {Card, Col, Container, Image, Row} from "react-bootstrap";
 import {useParams} from "react-router-dom";
-import {fetchOneProduct} from "../http/deviceAPI";
+import {fetchOneProduct} from "../http/productAPI";
 
 const ProductPage = () => {
     const [product, setProduct] = useState({info: []});

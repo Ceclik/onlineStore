@@ -5,7 +5,8 @@ import ProducerBar from "../components/ProducerBar";
 import ProductList from "../components/ProductList";
 import {observer} from "mobx-react-lite";
 import {Context} from "../index";
-import {fetchProducers, fetchProducts, fetchTypes} from "../http/deviceAPI";
+import {fetchProducers, fetchProducts, fetchTypes} from "../http/productAPI";
+import PagesBar from "../components/PagesBar";
 
 const ShopPage = observer(() => {
     const {product} = useContext(Context);
@@ -13,8 +14,18 @@ const ShopPage = observer(() => {
     useEffect(() => {
         fetchTypes().then(data => product.setTypes(data));
         fetchProducers().then(data => product.setProducers(data));
-        fetchProducts().then(data => product.setProducts(data.rows));
+        fetchProducts(null, null, 1, 3).then(data => {
+            product.setProducts(data.rows);
+            product.setTotalCount(data.count)
+        });
     }, []);
+
+    useEffect(() => {
+        fetchProducts(product.selectedType.id, product.selectedProducer.id, product.page, 2).then(data => {
+            product.setProducts(data.rows);
+            product.setTotalCount(data.count);
+        })
+    }, [product.page, product.selectedType, product.selectedProducer, ]);
 
     return (
         <Container>
@@ -25,6 +36,7 @@ const ShopPage = observer(() => {
                 <Col md={9}>
                     <ProducerBar />
                     <ProductList />
+                    <PagesBar />
                 </Col>
             </Row>
         </Container>
