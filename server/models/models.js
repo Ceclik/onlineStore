@@ -74,7 +74,7 @@ CartItem.belongsTo(Product);
 Producer.hasMany(Product, {onDelete: 'CASCADE'});
 Product.belongsTo(Producer);
 
-Type.hasMany(Product);
+Type.hasMany(Product, {onDelete: 'CASCADE'});
 Product.belongsTo(Type);
 
 Country.hasMany(Product);

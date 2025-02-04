@@ -11,6 +11,11 @@ export const fetchTypes = async () => {
     return data;
 }
 
+export const deleteType = async (typeId) => {
+    const {message} = await $authHost.delete('api/type/delete/' + typeId);
+    return message;
+}
+
 export const createProducer = async (producer, typeId) => {
     try {
         const {data} = await $authHost.post('api/producer/add', producer, typeId);

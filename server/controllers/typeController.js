@@ -8,22 +8,28 @@ class TypeController {
     }
 
     async deleteType(req, res, next) {
-        const {name} = req.body;
-        if (!name) {
-            return next(apiError.badRequest('name is not defined!'));
+        try {
+            const {typeId} = req.params;
+            console.log(`Type id: ${typeId}`)
+            if (!typeId) {
+                throw apiError.badRequest();
+            }
+
+            if (!await Type.findOne({
+                where: {id: typeId}
+            })) {
+                throw apiError.badRequest("This type doesn't exist");
+            }
+
+            await Type.destroy({
+                where: {id: typeId}
+            });
+
+            return res.json('Type successfully deleted!');
         }
-
-        if (await Type.findOne({
-            where: {name}
-        })) {
-            return next(apiError.badRequest('This type already exist'));
+        catch (e) {
+            next(e);
         }
-
-        await Type.destroy({
-            where: {name}
-        });
-
-        return res.body('Type successfully deleted!')
     }
 
     async addType(req, res, next) {
