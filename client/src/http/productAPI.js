@@ -10,10 +10,27 @@ export const fetchTypes = async () => {
     return data;
 }
 
+export const fetchOneType = async (id) => {
+    const {data} = await $host.get('api/type/' + id);
+    return data;
+}
+
 export const deleteType = async (typeId) => {
     const {message} = await $authHost.delete('api/type/delete/' + typeId);
     return message;
 }
+
+export const searchTypesByName = async (name) => {
+    try {
+        const { data } = await $host.get('/api/type/search', {
+            params: { name }
+        });
+        return data;
+    } catch (error) {
+        console.error("Error fetching types:", error);
+        return [];
+    }
+};
 
 export const createProducer = async (producer, typeId) => {
     try {

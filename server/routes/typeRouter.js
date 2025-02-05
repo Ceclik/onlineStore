@@ -8,5 +8,6 @@ router.get('/all', typeController.getAllTypes);
 router.post('/add', authMiddleware, checkRoleMiddleware('ADMIN'), typeController.addType);
 router.delete('/delete/:typeId', authMiddleware, checkRoleMiddleware('ADMIN'), typeController.deleteType);
 router.get('/search', typeController.nameSearch);
+router.get('/:id', typeController.getOne);
 
 module.exports = router;

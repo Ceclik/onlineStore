@@ -9,6 +9,15 @@ class TypeController {
         return res.json(allTypes);
     }
 
+    async getOne(req, res, next){
+        try {
+            const {id} = req.params;
+            return res.json(await Type.findOne({where: {id}}));
+        }catch(e){
+            next(ApiError.internal());
+        }
+    }
+
     async deleteType(req, res, next) {
         try {
             const {typeId} = req.params;

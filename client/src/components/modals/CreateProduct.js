@@ -1,8 +1,9 @@
 import React, {useContext, useEffect, useState} from 'react';
 import {Button, Col, Dropdown, DropdownMenu, Form, Modal, Row} from "react-bootstrap";
 import {Context} from "../../index";
-import {createProduct, fetchProducers, fetchProducts, fetchTypes} from "../../http/productAPI";
+import {createProduct, fetchOneType, fetchProducers, fetchProducts, fetchTypes} from "../../http/productAPI";
 import {observer} from "mobx-react-lite";
+import TypeDropdown from "../dropdown/TypeDropdown";
 
 const CreateProduct = observer(({show, onHide}) => {
     const {product} = useContext(Context);
@@ -33,6 +34,17 @@ const CreateProduct = observer(({show, onHide}) => {
         setFile(e.target.files[0]);
     }
 
+    const handleTypeSelect = async (selected) => {
+        if (!selected) return;
+
+        try {
+            const data = await fetchOneType(selected.id);
+            product.setSelectedType(data)
+        } catch (error) {
+            console.error("Ошибка при получении данных о товаре:", error);
+        }
+    };
+
     const addProduct = () => {
         const formData = new FormData();
         formData.append('name', name);
@@ -51,15 +63,8 @@ const CreateProduct = observer(({show, onHide}) => {
             </Modal.Header>
             <Modal.Body>
                 <Form>
-                    <Dropdown className={'mt-2 mb-2'}>
-                        <Dropdown.Toggle>{product.selectedType.name || 'Выберите тип товара'}</Dropdown.Toggle>
-                        <DropdownMenu>
-                            {product.types.map(type =>
-                                <Dropdown.Item onClick={() => product.setSelectedType(type)}
-                                               key={type.id}>{type.name}</Dropdown.Item>
-                            )}
-                        </DropdownMenu>
-                    </Dropdown>
+                    <TypeDropdown onSelect={handleTypeSelect} />
+
                     <Dropdown className={'mt-2 mb-2'}>
                         <Dropdown.Toggle>{product.selectedProducer.name || 'Выберите производителя товара'}</Dropdown.Toggle>
                         <DropdownMenu>

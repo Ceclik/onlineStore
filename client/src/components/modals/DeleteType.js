@@ -1,8 +1,10 @@
 import React, {useContext, useState} from 'react';
 import {Button, Dropdown, DropdownMenu, Form, Modal} from "react-bootstrap";
-import {deleteType} from "../../http/productAPI";
+import {deleteType, fetchOneProduct, fetchOneType} from "../../http/productAPI";
 import {Context} from "../../index";
 import {observer} from "mobx-react-lite";
+import ProductDropdown from "../dropdown/ProductDropdown";
+import TypeDropdown from "../dropdown/TypeDropdown";
 
 const DeleteType = observer(({show, onHide}) => {
 
@@ -13,21 +15,24 @@ const DeleteType = observer(({show, onHide}) => {
         onHide();
     }
 
+    const handleTypeSelect = async (selected) => {
+        if (!selected) return;
+
+        try {
+            const data = await fetchOneType(selected.id);
+            product.setSelectedType(data)
+        } catch (error) {
+            console.error("Ошибка при получении данных о товаре:", error);
+        }
+    };
+
     return (
         <Modal show={show} onHide={onHide}>
             <Modal.Header closeButton>
-                <Modal.Title>Удалить производителя</Modal.Title>
+                <Modal.Title>Удалить Тип</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <Dropdown className={'mt-2 mb-2'}>
-                    <Dropdown.Toggle>{product.selectedType.name || 'Выберите тип товара'}</Dropdown.Toggle>
-                    <DropdownMenu>
-                        {product.types.map(type =>
-                            <Dropdown.Item onClick={() => product.setSelectedType(type)}
-                                           key={type.id}>{type.name}</Dropdown.Item>
-                        )}
-                    </DropdownMenu>
-                </Dropdown>
+                {<TypeDropdown onSelect={handleTypeSelect} />}
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="outline-danger" onClick={onHide}>

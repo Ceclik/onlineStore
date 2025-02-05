@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { Button, Col, Dropdown, DropdownMenu, Form, Modal, Row } from "react-bootstrap";
 import { Context } from "../../index";
 import {
-    fetchOneProduct,
+    fetchOneProduct, fetchOneType,
     fetchProducers,
     fetchProducts,
     fetchTypes,
@@ -10,6 +10,7 @@ import {
 } from "../../http/productAPI";
 import { observer } from "mobx-react-lite";
 import ProductDropdown from "../dropdown/ProductDropdown";
+import TypeDropdown from "../dropdown/TypeDropdown";
 
 const EditProduct = observer(({ show, onHide }) => {
     const { product } = useContext(Context);
@@ -47,6 +48,17 @@ const EditProduct = observer(({ show, onHide }) => {
         }
     };
 
+    const handleTypeSelect = async (selected) => {
+        if (!selected) return;
+
+        try {
+            const data = await fetchOneType(selected.id);
+            product.setSelectedType(data)
+        } catch (error) {
+            console.error("Ошибка при получении данных о товаре:", error);
+        }
+    };
+
     const updateProductHandler = () => {
         if (!selectedProduct) return;
 
@@ -70,8 +82,7 @@ const EditProduct = observer(({ show, onHide }) => {
             <Modal.Body>
                 <Form>
                     <ProductDropdown onSelect={handleProductSelect} />
-
-                    <Dropdown className={"mt-2 mb-2"}>
+                    {/*<Dropdown className={"mt-2 mb-2"}>
                         <Dropdown.Toggle>
                             {product.selectedType.name || "Выберите тип товара"}
                         </Dropdown.Toggle>
@@ -95,7 +106,9 @@ const EditProduct = observer(({ show, onHide }) => {
                                     </Dropdown.Item>
                                 ))}
                         </DropdownMenu>
-                    </Dropdown>
+                    </Dropdown>*/
+                        <TypeDropdown onSelect={handleTypeSelect} />
+                    }
 
                     <Dropdown className={"mt-2 mb-2"}>
                         <Dropdown.Toggle>
