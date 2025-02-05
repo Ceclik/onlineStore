@@ -3,7 +3,7 @@ const path = require('path');
 const {Product, Rating} = require('../models/models');
 const ApiError = require('../error/apiError');
 const jwt = require('jsonwebtoken');
-const productService = require('../Services/productService');
+const productService = require('../services/productService');
 
 class ProductController {
 
@@ -55,7 +55,6 @@ class ProductController {
                     imgName = uuid.v4() + '.jpg';
                 }
             }
-
             return res.json(await productService.updateProduct(producerId, price, typeId, countryId, imgName, name, info, id, next));
         } catch (err) {
             next(ApiError.internal(err.message));

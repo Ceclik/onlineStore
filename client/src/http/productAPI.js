@@ -52,6 +52,13 @@ export const deleteProduct = async (productId) => {
 
 export const fetchOneProduct = async (id) => {
     const {data} = await $host.get('api/product/' + id);
+    console.log(`Fetched one product data: ${JSON.stringify(data)}`);
+    return data;
+}
+
+export const updateProduct = async (product, productId) => {
+    console.log(`product: ${JSON.stringify(product)}`);
+    const {data} = await $authHost.put('api/product/update/' + productId, product);
     return data;
 }
 

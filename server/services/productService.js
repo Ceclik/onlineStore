@@ -91,15 +91,7 @@ class ProductService {
     }
 
     async updateProduct(producerId, price, typeId, countryId, imgName, name, info, id, next) {
-        if (await Product.findOne({
-            where: {
-                name,
-                producerId
-            }
-        })) {
-            throw ApiError.badRequest('This product is already exists');
-        }
-
+        if(!countryId) countryId = 1;
         await Product.update(
             {
                 name, price, producerId, typeId, countryId, imgName
@@ -107,12 +99,9 @@ class ProductService {
             {
                 where: {id}
             });
-
         if (info) {
             info = JSON.parse(info);
-
             const existingDescriptions = await Description.findAll({where: {productId: id}});
-
             for (const data of info) {
                 const existingDescription = existingDescriptions.find(d => d.title === data.title);
                 if (existingDescription) {

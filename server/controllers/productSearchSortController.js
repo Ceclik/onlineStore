@@ -1,6 +1,6 @@
 const {Product} = require('../models/models');
 const ApiError = require('../error/apiError');
-const productSearchSortService = require('../Services/productSearchSortService');
+const productSearchSortService = require('../services/productSearchSortService');
 
 class ProductSearchSortController {
     async nameSearch(req, res, next) {

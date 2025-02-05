@@ -1,6 +1,6 @@
 const {User} = require('../models/models');
 const ApiError = require('../error/apiError');
-const userService = require('../Services/userService');
+const userService = require('../services/userService');
 
 class UserController {
 

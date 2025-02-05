@@ -1,6 +1,6 @@
 const {Producer} = require("../models/models");
 const ApiError = require("../error/apiError");
-const producerService = require('../Services/producerService');
+const producerService = require('../services/producerService');
 
 class ProducerController {
 
