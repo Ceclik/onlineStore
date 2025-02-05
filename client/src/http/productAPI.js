@@ -1,5 +1,4 @@
 import {$authHost, $host} from "./index";
-import {jwtDecode} from "jwt-decode";
 
 export const createType = async (type) => {
     const {data} = await $authHost.post('api/type/add', type);
@@ -61,4 +60,17 @@ export const updateProduct = async (product, productId) => {
     const {data} = await $authHost.put('api/product/update/' + productId, product);
     return data;
 }
+
+export const searchProductsByName = async (name) => {
+    try {
+        const { data } = await $host.get('/api/product/search', {
+            params: { name }
+        });
+        console.log(`Fetched products: ${JSON.stringify(data)}`);
+        return data;
+    } catch (error) {
+        console.error("Error fetching products:", error);
+        return [];
+    }
+};
 

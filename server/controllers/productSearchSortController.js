@@ -1,21 +1,26 @@
 const {Product} = require('../models/models');
 const ApiError = require('../error/apiError');
 const productSearchSortService = require('../services/productSearchSortService');
+const {Op} = require("sequelize");
 
 class ProductSearchSortController {
     async nameSearch(req, res, next) {
         try {
-            const {name} = req.query;
+            const { name } = req.query;
 
             if (!name)
                 return next(ApiError.badRequest('Name is not defined'));
 
             const products = await Product.findAll({
-                where: {name}
+                where: {
+                    name: {
+                        [Op.iLike]: `%${name}%`
+                    }
+                }
             });
 
-            if (!products)
-                return res.json("not found!")
+            if (!products.length)
+                return res.json("not found!");
 
             return res.json(products);
         } catch (err) {
