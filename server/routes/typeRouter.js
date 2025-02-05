@@ -7,5 +7,6 @@ const authMiddleware = require('../middleware/authMiddleware');
 router.get('/all', typeController.getAllTypes);
 router.post('/add', authMiddleware, checkRoleMiddleware('ADMIN'), typeController.addType);
 router.delete('/delete/:typeId', authMiddleware, checkRoleMiddleware('ADMIN'), typeController.deleteType);
+router.get('/search', typeController.nameSearch);
 
 module.exports = router;

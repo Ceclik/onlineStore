@@ -1,36 +1,35 @@
 import React, {useEffect, useState} from "react";
 import {Dropdown, FormControl} from "react-bootstrap";
-import {searchProductsByName} from "../http/productAPI";
+import {searchProductsByName} from "../../http/productAPI";
 import {debounce} from "lodash";
+import {observer} from "mobx-react-lite";
 
-const ProductDropdown = ({onSelect}) => {
+const ProductDropdown = observer(({onSelect}) => {
     const [searchTerm, setSearchTerm] = useState("");
-    const [products, setProducts] = useState([]); // Гарантируем, что products - массив
+    const [products, setProducts] = useState([]);
     const [filteredProducts, setFilteredProducts] = useState([]);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [selectedProduct, setSelectedProduct] = useState(null);
 
-    // Функция поиска с debounce
     const fetchProducts = debounce(async (query) => {
         if (query.trim() === "") {
-            setProducts([]); // Если поле пустое, очищаем список
+            setProducts([]);
             return;
         }
 
         try {
             const result = await searchProductsByName(query);
-            setProducts(Array.isArray(result) ? result : []); // Гарантируем массив
+            setProducts(Array.isArray(result) ? result : []);
         } catch (error) {
             console.error("Ошибка загрузки товаров:", error);
             setProducts([]);
         }
     }, 300);
 
-    // Вызываем fetchProducts при изменении searchTerm
     useEffect(() => {
         fetchProducts(searchTerm);
     }, [searchTerm]);
 
-    // Фильтруем результаты (если сервер вернул данные)
     useEffect(() => {
         setFilteredProducts(
             Array.isArray(products)
@@ -41,10 +40,16 @@ const ProductDropdown = ({onSelect}) => {
         );
     }, [products, searchTerm]);
 
+    const handleSelect = (product) => {
+        setSelectedProduct(product);
+        onSelect(product);
+        setIsDropdownOpen(false);
+    };
+
     return (
         <Dropdown show={isDropdownOpen} onToggle={(isOpen) => setIsDropdownOpen(isOpen)}>
             <Dropdown.Toggle variant="secondary">
-                Выберите товар
+                {selectedProduct ? selectedProduct.name : 'Выберите товар'}
             </Dropdown.Toggle>
 
             <Dropdown.Menu style={{maxHeight: "200px", overflowY: "auto"}}>
@@ -53,11 +58,11 @@ const ProductDropdown = ({onSelect}) => {
                     placeholder="Поиск..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    onClick={(e) => e.stopPropagation()} // Чтобы дропдаун не закрывался
+                    onClick={(e) => e.stopPropagation()}
                 />
                 {filteredProducts.length > 0 ? (
                     filteredProducts.map((product) => (
-                        <Dropdown.Item key={product.id} onClick={() => onSelect(product)}>
+                        <Dropdown.Item key={product.id} onClick={() => handleSelect(product)}>
                             {product.name}
                         </Dropdown.Item>
                     ))
@@ -67,6 +72,6 @@ const ProductDropdown = ({onSelect}) => {
             </Dropdown.Menu>
         </Dropdown>
     );
-};
+});
 
 export default ProductDropdown;

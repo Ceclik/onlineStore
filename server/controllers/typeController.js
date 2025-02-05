@@ -1,5 +1,7 @@
-const {Type} = require('../models/models')
+const {Type, Product} = require('../models/models')
 const apiError = require('../error/apiError');
+const ApiError = require("../error/apiError");
+const {Op} = require("sequelize");
 
 class TypeController {
     async getAllTypes(req, res) {
@@ -39,6 +41,30 @@ class TypeController {
         }
         const createdType = await Type.create({name});
         return res.json({"createdType": {createdType}});
+    }
+
+    async nameSearch(req, res, next){
+        try {
+            const { name } = req.query;
+
+            if (!name)
+                return next(ApiError.badRequest('Name is not defined'));
+
+            const types = await Type.findAll({
+                where: {
+                    name: {
+                        [Op.iLike]: `%${name}%`
+                    }
+                }
+            });
+
+            if (!types.length)
+                return next(ApiError.badRequest("not found!"));
+
+            return res.json(types);
+        } catch (err) {
+            next(ApiError.internal(err.message));
+        }
     }
 }
 

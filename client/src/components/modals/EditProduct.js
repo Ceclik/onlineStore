@@ -9,7 +9,7 @@ import {
     updateProduct
 } from "../../http/productAPI";
 import { observer } from "mobx-react-lite";
-import ProductDropdown from "../ProductDropdown";
+import ProductDropdown from "../dropdown/ProductDropdown";
 
 const EditProduct = observer(({ show, onHide }) => {
     const { product } = useContext(Context);

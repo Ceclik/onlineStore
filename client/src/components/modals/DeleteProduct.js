@@ -1,8 +1,9 @@
 import React, {useContext, useState} from 'react';
-import {Button, Dropdown, DropdownMenu, Form, Modal} from "react-bootstrap";
-import {deleteProduct, deleteType} from "../../http/productAPI";
+import {Button, Modal} from "react-bootstrap";
+import {deleteProduct, fetchOneProduct} from "../../http/productAPI";
 import {Context} from "../../index";
 import {observer} from "mobx-react-lite";
+import ProductDropdown from "../dropdown/ProductDropdown";
 
 const DeleteProduct = observer(({show, onHide}) => {
 
@@ -13,21 +14,24 @@ const DeleteProduct = observer(({show, onHide}) => {
         onHide();
     }
 
+    const handleProductSelect = async (selected) => {
+        if (!selected) return;
+
+        try {
+            const data = await fetchOneProduct(selected.id);
+            product.setSelectedProduct(data);
+        } catch (error) {
+            console.error("Ошибка при получении данных о товаре:", error);
+        }
+    };
+
     return (
         <Modal show={show} onHide={onHide}>
             <Modal.Header closeButton>
                 <Modal.Title>Удалить товар</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <Dropdown className={'mt-2 mb-2'}>
-                    <Dropdown.Toggle>{product.selectedProduct.name || 'Выберите товар'}</Dropdown.Toggle>
-                    <DropdownMenu>
-                        {product.products.map(product1 =>
-                            <Dropdown.Item onClick={() => product.setSelectedProduct(product1)}
-                                           key={product1.id}>{product1.name}</Dropdown.Item>
-                        )}
-                    </DropdownMenu>
-                </Dropdown>
+                {<ProductDropdown onSelect={handleProductSelect}/>}
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="outline-danger" onClick={onHide}>
