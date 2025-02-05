@@ -21,8 +21,6 @@ const EditProduct = observer(({ show, onHide }) => {
     const [name, setName] = useState("");
     const [price, setPrice] = useState(0);
     const [file, setFile] = useState(null);
-    const [searchType, setSearchType] = useState("");
-    const [searchProducer, setSearchProducer] = useState("");
 
     useEffect(() => {
         fetchTypes().then((data) => product.setTypes(data));
@@ -40,9 +38,8 @@ const EditProduct = observer(({ show, onHide }) => {
             setPrice(Number(data.price) || 0);
             setInfo(data.info || []);
 
-            // Выбираем соответствующий тип и производителя
-            const selectedType = product.types.find((t) => t.id === data.typeId) || {};
-            const selectedProducer = product.producers.find((p) => p.id === data.producerId) || {};
+            const selectedType = product.types.find((t) => t.id === data.typeId) || null;
+            const selectedProducer = product.producers.find((p) => p.id === data.producerId) || null;
             product.setSelectedType(selectedType);
             product.setSelectedProducer(selectedProducer);
         } catch (error) {
@@ -50,25 +47,15 @@ const EditProduct = observer(({ show, onHide }) => {
         }
     };
 
-    const handleTypeSelect = async (selected) => {
-        if (!selected) return;
-
-        try {
-            const data = await fetchOneType(selected.id);
-            product.setSelectedType(data)
-        } catch (error) {
-            console.error("Ошибка при получении данных о товаре:", error);
+    const handleTypeSelect = (selected) => {
+        if (selected) {
+            product.setSelectedType(selected);
         }
     };
 
-    const handleProducerSelect = async (selected) => {
-        if (!selected) return;
-
-        try {
-            const data = await fetchOneProducer(selected.id);
-            product.setSelectedProducer(data)
-        } catch (error) {
-            console.error("Ошибка при получении данных о производителе:", error);
+    const handleProducerSelect = (selected) => {
+        if (selected) {
+            product.setSelectedProducer(selected);
         }
     };
 
@@ -80,8 +67,8 @@ const EditProduct = observer(({ show, onHide }) => {
         formData.append("name", name);
         formData.append("price", `${price}`);
         if (file) formData.append("img", file);
-        formData.append("producerId", product.selectedProducer.id);
-        formData.append("typeId", product.selectedType.id);
+        formData.append("producerId", product.selectedProducer?.id || "");
+        formData.append("typeId", product.selectedType?.id || "");
         formData.append("info", JSON.stringify(info));
 
         updateProduct(formData, selectedProduct.id).then(() => onHide());
@@ -95,8 +82,8 @@ const EditProduct = observer(({ show, onHide }) => {
             <Modal.Body>
                 <Form>
                     <ProductDropdown onSelect={handleProductSelect} />
-                    <TypeDropdown onSelect={handleTypeSelect} />
-                    <ProducerDropdown onSelect={handleProducerSelect} />
+                    <TypeDropdown onSelect={handleTypeSelect} selected={product.selectedType} />
+                    <ProducerDropdown onSelect={handleProducerSelect} selected={product.selectedProducer} />
 
                     <Form.Control
                         value={name}
@@ -116,59 +103,6 @@ const EditProduct = observer(({ show, onHide }) => {
                         type={"file"}
                         onChange={(e) => setFile(e.target.files[0])}
                     />
-                    <hr />
-                    <Button
-                        variant={"outline-dark"}
-                        onClick={() =>
-                            setInfo([...info, { title: "", description: "", number: Date.now() }])
-                        }
-                    >
-                        Добавить новое свойство
-                    </Button>
-                    {info.map((i) => (
-                        <Row className={"mt-3"} key={i.number}>
-                            <Col md={4}>
-                                <Form.Control
-                                    value={i.title}
-                                    onChange={(e) =>
-                                        setInfo(
-                                            info.map((item) =>
-                                                item.number === i.number
-                                                    ? { ...item, title: e.target.value }
-                                                    : item
-                                            )
-                                        )
-                                    }
-                                    placeholder={"Название"}
-                                />
-                            </Col>
-                            <Col md={4}>
-                                <Form.Control
-                                    value={i.description}
-                                    onChange={(e) =>
-                                        setInfo(
-                                            info.map((item) =>
-                                                item.number === i.number
-                                                    ? { ...item, description: e.target.value }
-                                                    : item
-                                            )
-                                        )
-                                    }
-                                    placeholder={"Описание"}
-                                />
-                            </Col>
-                            <Col md={4}>
-                                <Button
-                                    variant={"outline-danger"}
-                                    onClick={() =>
-                                        setInfo(info.filter((item) => item.number !== i.number))
-                                    }
-                                >
-                                    Удалить
-                                </Button>
-                            </Col>
-                        </Row>
-                    ))}
                 </Form>
             </Modal.Body>
             <Modal.Footer>

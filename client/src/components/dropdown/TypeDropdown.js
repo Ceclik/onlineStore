@@ -4,12 +4,15 @@ import {searchTypesByName} from "../../http/productAPI";
 import {debounce} from "lodash";
 import {observer} from "mobx-react-lite";
 
-const TypeDropdown = observer(({onSelect}) => {
+const TypeDropdown = observer(({ onSelect, selected }) => {
     const [searchTerm, setSearchTerm] = useState("");
     const [Types, setTypes] = useState([]);
     const [filteredTypes, setFilteredTypes] = useState([]);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    const [selectedType, setSelectedType] = useState(null);
+
+    useEffect(() => {
+        setSearchTerm(""); // Очищаем поле поиска при смене выбранного типа
+    }, [selected]);
 
     const fetchTypes = debounce(async (query) => {
         if (query.trim() === "") {
@@ -33,23 +36,15 @@ const TypeDropdown = observer(({onSelect}) => {
     useEffect(() => {
         setFilteredTypes(
             Array.isArray(Types)
-                ? Types.filter((p) =>
-                    p.name.toLowerCase().includes(searchTerm.toLowerCase())
-                )
+                ? Types.filter((p) => p.name.toLowerCase().includes(searchTerm.toLowerCase()))
                 : []
         );
     }, [Types, searchTerm]);
 
-    const handleSelect = (type) => {
-        setSelectedType(type);
-        onSelect(type);
-        setIsDropdownOpen(false);
-    };
-
     return (
         <Dropdown className={"mt-2 mb-2"} show={isDropdownOpen} onToggle={(isOpen) => setIsDropdownOpen(isOpen)}>
             <Dropdown.Toggle variant="secondary">
-                {selectedType ? selectedType.name : 'Выберите тип'}
+                {selected ? selected.name : 'Выберите тип'}
             </Dropdown.Toggle>
 
             <Dropdown.Menu style={{maxHeight: "200px", overflowY: "auto"}}>
@@ -62,7 +57,7 @@ const TypeDropdown = observer(({onSelect}) => {
                 />
                 {filteredTypes.length > 0 ? (
                     filteredTypes.map((type) => (
-                        <Dropdown.Item key={type.id} onClick={() => handleSelect(type)}>
+                        <Dropdown.Item key={type.id} onClick={() => onSelect(type)}>
                             {type.name}
                         </Dropdown.Item>
                     ))

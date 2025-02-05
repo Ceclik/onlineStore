@@ -5,12 +5,15 @@ import {debounce} from "lodash";
 import {observer} from "mobx-react-lite";
 import {Context} from "../../index";
 
-const ProducerDropdown = observer(({onSelect}) => {
+const ProducerDropdown = observer(({ onSelect, selected }) => {
     const [searchTerm, setSearchTerm] = useState("");
     const [producers, setProducers] = useState([]);
     const [filteredProducers, setFilteredProducers] = useState([]);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    const [selectedProducer, setSelectedProducer] = useState(null);
+
+    useEffect(() => {
+        setSearchTerm(""); // Очищаем поле поиска при смене выбранного производителя
+    }, [selected]);
 
     const fetchProducers = debounce(async (query) => {
         if (query.trim() === "") {
@@ -34,23 +37,15 @@ const ProducerDropdown = observer(({onSelect}) => {
     useEffect(() => {
         setFilteredProducers(
             Array.isArray(producers)
-                ? producers.filter((p) =>
-                    p.name.toLowerCase().includes(searchTerm.toLowerCase())
-                )
+                ? producers.filter((p) => p.name.toLowerCase().includes(searchTerm.toLowerCase()))
                 : []
         );
     }, [producers, searchTerm]);
 
-    const handleSelect = (producer) => {
-        setSelectedProducer(producer);
-        onSelect(producer);
-        setIsDropdownOpen(false);
-    };
-
     return (
         <Dropdown className={"mt-2 mb-2"} show={isDropdownOpen} onToggle={(isOpen) => setIsDropdownOpen(isOpen)}>
             <Dropdown.Toggle variant="secondary">
-                {selectedProducer ? selectedProducer.name : 'Выберите производителя'}
+                {selected ? selected.name : 'Выберите производителя'}
             </Dropdown.Toggle>
 
             <Dropdown.Menu style={{maxHeight: "200px", overflowY: "auto"}}>
@@ -63,7 +58,7 @@ const ProducerDropdown = observer(({onSelect}) => {
                 />
                 {filteredProducers.length > 0 ? (
                     filteredProducers.map((producer) => (
-                        <Dropdown.Item key={producer.id} onClick={() => handleSelect(producer)}>
+                        <Dropdown.Item key={producer.id} onClick={() => onSelect(producer)}>
                             {producer.name}
                         </Dropdown.Item>
                     ))
