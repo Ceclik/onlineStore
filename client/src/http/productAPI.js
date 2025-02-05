@@ -46,6 +46,23 @@ export const fetchProducers = async () => {
     return data;
 }
 
+export const fetchOneProducer = async (id) => {
+    const {data} = await $host.get('/api/producer/' + id);
+    return data;
+}
+
+export const searchProducersByName = async (name) => {
+    try {
+        const { data } = await $host.get('/api/producer/search', {
+            params: { name }
+        });
+        return data;
+    } catch (error) {
+        console.error("Error fetching types:", error);
+        return [];
+    }
+};
+
 export const deleteProducer = async (producerId) => {
     const {message} = await $authHost.delete('api/producer/delete/' + producerId);
     return message;

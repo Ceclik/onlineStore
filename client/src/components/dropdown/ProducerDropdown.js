@@ -1,55 +1,56 @@
 import React, {useContext, useEffect, useState} from "react";
 import {Dropdown, FormControl} from "react-bootstrap";
-import {searchTypesByName} from "../../http/productAPI";
+import {searchProducersByName} from "../../http/productAPI";
 import {debounce} from "lodash";
 import {observer} from "mobx-react-lite";
+import {Context} from "../../index";
 
-const TypeDropdown = observer(({onSelect}) => {
+const ProducerDropdown = observer(({onSelect}) => {
     const [searchTerm, setSearchTerm] = useState("");
-    const [Types, setTypes] = useState([]);
-    const [filteredTypes, setFilteredTypes] = useState([]);
+    const [producers, setProducers] = useState([]);
+    const [filteredProducers, setFilteredProducers] = useState([]);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    const [selectedType, setSelectedType] = useState(null);
+    const [selectedProducer, setSelectedProducer] = useState(null);
 
-    const fetchTypes = debounce(async (query) => {
+    const fetchProducers = debounce(async (query) => {
         if (query.trim() === "") {
-            setTypes([]);
+            setProducers([]);
             return;
         }
 
         try {
-            const result = await searchTypesByName(query);
-            setTypes(Array.isArray(result) ? result : []);
+            const result = await searchProducersByName(query);
+            setProducers(Array.isArray(result) ? result : []);
         } catch (error) {
-            console.error("Ошибка загрузки типов:", error);
-            setTypes([]);
+            console.error("Ошибка загрузки производителей:", error);
+            setProducers([]);
         }
     }, 300);
 
     useEffect(() => {
-        fetchTypes(searchTerm);
+        fetchProducers(searchTerm);
     }, [searchTerm]);
 
     useEffect(() => {
-        setFilteredTypes(
-            Array.isArray(Types)
-                ? Types.filter((p) =>
+        setFilteredProducers(
+            Array.isArray(producers)
+                ? producers.filter((p) =>
                     p.name.toLowerCase().includes(searchTerm.toLowerCase())
                 )
                 : []
         );
-    }, [Types, searchTerm]);
+    }, [producers, searchTerm]);
 
-    const handleSelect = (type) => {
-        setSelectedType(type);
-        onSelect(type);
+    const handleSelect = (producer) => {
+        setSelectedProducer(producer);
+        onSelect(producer);
         setIsDropdownOpen(false);
     };
 
     return (
         <Dropdown className={"mt-2 mb-2"} show={isDropdownOpen} onToggle={(isOpen) => setIsDropdownOpen(isOpen)}>
             <Dropdown.Toggle variant="secondary">
-                {selectedType ? selectedType.name : 'Выберите тип'}
+                {selectedProducer ? selectedProducer.name : 'Выберите производителя'}
             </Dropdown.Toggle>
 
             <Dropdown.Menu style={{maxHeight: "200px", overflowY: "auto"}}>
@@ -60,10 +61,10 @@ const TypeDropdown = observer(({onSelect}) => {
                     onChange={(e) => setSearchTerm(e.target.value)}
                     onClick={(e) => e.stopPropagation()}
                 />
-                {filteredTypes.length > 0 ? (
-                    filteredTypes.map((type) => (
-                        <Dropdown.Item key={type.id} onClick={() => handleSelect(type)}>
-                            {type.name}
+                {filteredProducers.length > 0 ? (
+                    filteredProducers.map((producer) => (
+                        <Dropdown.Item key={producer.id} onClick={() => handleSelect(producer)}>
+                            {producer.name}
                         </Dropdown.Item>
                     ))
                 ) : (
@@ -74,4 +75,4 @@ const TypeDropdown = observer(({onSelect}) => {
     );
 });
 
-export default TypeDropdown;
+export default ProducerDropdown;

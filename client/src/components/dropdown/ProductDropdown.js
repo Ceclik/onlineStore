@@ -1,8 +1,9 @@
-import React, {useEffect, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import {Dropdown, FormControl} from "react-bootstrap";
 import {searchProductsByName} from "../../http/productAPI";
 import {debounce} from "lodash";
 import {observer} from "mobx-react-lite";
+import {Context} from "../../index";
 
 const ProductDropdown = observer(({onSelect}) => {
     const [searchTerm, setSearchTerm] = useState("");

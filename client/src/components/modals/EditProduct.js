@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { Button, Col, Dropdown, DropdownMenu, Form, Modal, Row } from "react-bootstrap";
 import { Context } from "../../index";
 import {
+    fetchOneProducer,
     fetchOneProduct, fetchOneType,
     fetchProducers,
     fetchProducts,
@@ -11,6 +12,7 @@ import {
 import { observer } from "mobx-react-lite";
 import ProductDropdown from "../dropdown/ProductDropdown";
 import TypeDropdown from "../dropdown/TypeDropdown";
+import ProducerDropdown from "../dropdown/ProducerDropdown";
 
 const EditProduct = observer(({ show, onHide }) => {
     const { product } = useContext(Context);
@@ -59,6 +61,17 @@ const EditProduct = observer(({ show, onHide }) => {
         }
     };
 
+    const handleProducerSelect = async (selected) => {
+        if (!selected) return;
+
+        try {
+            const data = await fetchOneProducer(selected.id);
+            product.setSelectedProducer(data)
+        } catch (error) {
+            console.error("Ошибка при получении данных о производителе:", error);
+        }
+    };
+
     const updateProductHandler = () => {
         if (!selectedProduct) return;
 
@@ -71,7 +84,7 @@ const EditProduct = observer(({ show, onHide }) => {
         formData.append("typeId", product.selectedType.id);
         formData.append("info", JSON.stringify(info));
 
-        updateProduct(formData).then(() => onHide());
+        updateProduct(formData, selectedProduct.id).then(() => onHide());
     };
 
     return (
@@ -82,59 +95,8 @@ const EditProduct = observer(({ show, onHide }) => {
             <Modal.Body>
                 <Form>
                     <ProductDropdown onSelect={handleProductSelect} />
-                    {/*<Dropdown className={"mt-2 mb-2"}>
-                        <Dropdown.Toggle>
-                            {product.selectedType.name || "Выберите тип товара"}
-                        </Dropdown.Toggle>
-                        <DropdownMenu>
-                            <Form.Control
-                                className="m-2"
-                                placeholder="Поиск типа..."
-                                value={searchType}
-                                onChange={(e) => setSearchType(e.target.value)}
-                            />
-                            {product.types
-                                .filter((t) =>
-                                    t.name.toLowerCase().includes(searchType.toLowerCase())
-                                )
-                                .map((type) => (
-                                    <Dropdown.Item
-                                        onClick={() => product.setSelectedType(type)}
-                                        key={type.id}
-                                    >
-                                        {type.name}
-                                    </Dropdown.Item>
-                                ))}
-                        </DropdownMenu>
-                    </Dropdown>*/
-                        <TypeDropdown onSelect={handleTypeSelect} />
-                    }
-
-                    <Dropdown className={"mt-2 mb-2"}>
-                        <Dropdown.Toggle>
-                            {product.selectedProducer.name || "Выберите производителя"}
-                        </Dropdown.Toggle>
-                        <DropdownMenu>
-                            <Form.Control
-                                className="m-2"
-                                placeholder="Поиск производителя..."
-                                value={searchProducer}
-                                onChange={(e) => setSearchProducer(e.target.value)}
-                            />
-                            {product.producers
-                                .filter((p) =>
-                                    p.name.toLowerCase().includes(searchProducer.toLowerCase())
-                                )
-                                .map((producer) => (
-                                    <Dropdown.Item
-                                        onClick={() => product.setSelectedProducer(producer)}
-                                        key={producer.id}
-                                    >
-                                        {producer.name}
-                                    </Dropdown.Item>
-                                ))}
-                        </DropdownMenu>
-                    </Dropdown>
+                    <TypeDropdown onSelect={handleTypeSelect} />
+                    <ProducerDropdown onSelect={handleProducerSelect} />
 
                     <Form.Control
                         value={name}
@@ -144,7 +106,7 @@ const EditProduct = observer(({ show, onHide }) => {
                     />
                     <Form.Control
                         value={price}
-                        onChange={(e) => setPrice(Number(e.target.value) || 0)}
+                        onChange={(e) => setPrice(e.target.value || 0)}
                         className={"mt-3"}
                         placeholder={"Стоимость товара"}
                         type={"number"}

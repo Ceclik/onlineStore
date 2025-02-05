@@ -1,9 +1,17 @@
 import React, {useContext, useEffect, useState} from 'react';
 import {Button, Col, Dropdown, DropdownMenu, Form, Modal, Row} from "react-bootstrap";
 import {Context} from "../../index";
-import {createProduct, fetchOneType, fetchProducers, fetchProducts, fetchTypes} from "../../http/productAPI";
+import {
+    createProduct,
+    fetchOneProducer,
+    fetchOneType,
+    fetchProducers,
+    fetchProducts,
+    fetchTypes
+} from "../../http/productAPI";
 import {observer} from "mobx-react-lite";
 import TypeDropdown from "../dropdown/TypeDropdown";
+import ProducerDropdown from "../dropdown/ProducerDropdown";
 
 const CreateProduct = observer(({show, onHide}) => {
     const {product} = useContext(Context);
@@ -45,6 +53,17 @@ const CreateProduct = observer(({show, onHide}) => {
         }
     };
 
+    const handleProducerSelect = async (selected) => {
+        if (!selected) return;
+
+        try {
+            const data = await fetchOneProducer(selected.id);
+            product.setSelectedProducer(data)
+        } catch (error) {
+            console.error("Ошибка при получении данных о производителе:", error);
+        }
+    };
+
     const addProduct = () => {
         const formData = new FormData();
         formData.append('name', name);
@@ -64,16 +83,8 @@ const CreateProduct = observer(({show, onHide}) => {
             <Modal.Body>
                 <Form>
                     <TypeDropdown onSelect={handleTypeSelect} />
+                    <ProducerDropdown onSelect={handleProducerSelect} />
 
-                    <Dropdown className={'mt-2 mb-2'}>
-                        <Dropdown.Toggle>{product.selectedProducer.name || 'Выберите производителя товара'}</Dropdown.Toggle>
-                        <DropdownMenu>
-                            {product.producers.map(producer =>
-                                <Dropdown.Item onClick={() => product.setSelectedProducer(producer)}
-                                               key={producer.id}>{producer.name}</Dropdown.Item>
-                            )}
-                        </DropdownMenu>
-                    </Dropdown>
                     <Form.Control value={name} onChange={e => setName(e.target.value)} className={'mt-3'}
                                   placeholder={'Название товара'}/>
                     <Form.Control value={price} onChange={e => setPrice(e.target.value)} className={'mt-3'}

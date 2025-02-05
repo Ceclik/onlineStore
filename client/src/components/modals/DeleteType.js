@@ -19,7 +19,7 @@ const DeleteType = observer(({show, onHide}) => {
         if (!selected) return;
 
         try {
-            const data = await fetchOneType(selected.id);
+            const {data} = await fetchOneType(selected.id);
             product.setSelectedType(data)
         } catch (error) {
             console.error("Ошибка при получении данных о товаре:", error);
