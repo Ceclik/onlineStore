@@ -6,13 +6,21 @@ export const createType = async (type) => {
 }
 
 export const fetchTypes = async () => {
-    const {data} = await $host.get('api/type/all');
-    return data;
+    try {
+        const {data} = await $host.get('api/type/all');
+        return data;
+    } catch (e) {
+        console.log(e.message);
+    }
 }
 
 export const fetchOneType = async (id) => {
-    const {data} = await $host.get('api/type/' + id);
-    return data;
+    try {
+        const {data} = await $host.get('api/type/' + id);
+        return data;
+    } catch(e) {
+        console.log(e.message);
+    }
 }
 
 export const deleteType = async (typeId) => {
@@ -42,13 +50,21 @@ export const createProducer = async (producer, typeId) => {
 }
 
 export const fetchProducers = async () => {
-    const {data} = await $host.get('api/producer/all');
-    return data;
+    try {
+        const {data} = await $host.get('api/producer/all');
+        return data;
+    } catch (e) {
+        console.log(e.message);
+    }
 }
 
 export const fetchOneProducer = async (id) => {
-    const {data} = await $host.get('/api/producer/' + id);
-    return data;
+    try {
+        const {data} = await $host.get('/api/producer/' + id);
+        return data;
+    } catch (e) {
+        console.log(e.message);
+    }
 }
 
 export const searchProducersByName = async (name) => {
@@ -74,9 +90,16 @@ export const createProduct = async (product) => {
 }
 
 export const fetchProducts = async (typeId, producerId, page, limit = 5) => {
-    const {data} = await $host.get('api/product/all', {params: {
-            typeId, producerId, page, limit}});
-    return data;
+    try {
+        const {data} = await $host.get('api/product/all', {
+            params: {
+                typeId, producerId, page, limit
+            }
+        });
+        return data;
+    } catch (e) {
+        console.log(e.message);
+    }
 }
 export const deleteProduct = async (productId) => {
     const {message} = await $authHost.delete('api/product/delete/' + productId);
@@ -84,8 +107,12 @@ export const deleteProduct = async (productId) => {
 }
 
 export const fetchOneProduct = async (id) => {
-    const {data} = await $host.get('api/product/' + id);
-    return data;
+    try {
+        const {data} = await $host.get('api/product/' + id);
+        return data;
+    }catch (e) {
+        console.log(e.message);
+    }
 }
 
 export const updateProduct = async (product, productId) => {

@@ -10,18 +10,21 @@ import PagesBar from "../components/PagesBar";
 
 const ShopPage = observer(() => {
     const {product} = useContext(Context);
+    const productsLimit = 8;
 
     useEffect(() => {
         fetchTypes().then(data => product.setTypes(data));
         fetchProducers().then(data => product.setProducers(data));
-        fetchProducts(null, null, 1, 3).then(data => {
+        fetchProducts(null, null, 1, productsLimit).then(data => {
+            product.setLimit(productsLimit);
             product.setProducts(data.rows);
-            product.setTotalCount(data.count)
+            product.setTotalCount(data.count);
         });
     }, []);
 
     useEffect(() => {
-        fetchProducts(product.selectedType.id, product.selectedProducer.id, product.page, 2).then(data => {
+        fetchProducts(product.selectedType.id, product.selectedProducer.id, product.page, productsLimit).then(data => {
+            product.setLimit(productsLimit);
             product.setProducts(data.rows);
             product.setTotalCount(data.count);
         })

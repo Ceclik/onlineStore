@@ -24,33 +24,37 @@ class ProductService {
     }
 
     async getAllProducts(typeId, producerId, limit, offset) {
-        let products
+        let products;
         if (!typeId && producerId) {
             products = await Product.findAndCountAll({
-                where: {producerId},
-                include: [{model: Description, as: 'info'}],
+                where: { producerId },
+                include: [{ model: Description, as: 'info' }],
                 limit,
-                offset
+                offset,
+                distinct: true  // ✅ Убирает дублирование при `JOIN`
             });
         } else if (typeId && !producerId) {
             products = await Product.findAndCountAll({
-                where: {typeId},
-                include: [{model: Description, as: 'info'}, {model: Rating}],
+                where: { typeId },
+                include: [{ model: Description, as: 'info' }, { model: Rating }],
                 limit,
-                offset
+                offset,
+                distinct: true
             });
         } else if (typeId && producerId) {
             products = await Product.findAndCountAll({
-                where: {typeId, producerId},
-                include: [{model: Description, as: 'info'}],
+                where: { typeId, producerId },
+                include: [{ model: Description, as: 'info' }],
                 limit,
-                offset
+                offset,
+                distinct: true
             });
         } else {
             products = await Product.findAndCountAll({
-                include: [{model: Description, as: 'info'}],
+                include: [{ model: Description, as: 'info' }],
                 limit,
-                offset
+                offset,
+                distinct: true
             });
         }
         return products;
