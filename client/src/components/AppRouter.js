@@ -6,8 +6,7 @@ import {Context} from "../index";
 
 const AppRouter = () => {
     const {user} = useContext(Context);
-    console.log(user);
-    const isAuth = true;
+    const isAuth = user.IsAuth;
     return (
         <Routes>
             {isAuth === true && authRoutes.map(({path, Component}) => (

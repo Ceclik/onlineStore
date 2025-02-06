@@ -11,6 +11,7 @@ module.exports = function (req, res, next) {
             next(ApiError.unauthorized());
         }
 
+        console.log(`received token: ${token}`);
         req.user = jwt.verify(token, process.env.SECRET_KEY);
         next();
     }catch (e){
