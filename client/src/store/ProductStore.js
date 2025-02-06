@@ -8,6 +8,7 @@ export default class ProductStore {
             {id: 1, name: "Беларусь"}
         ]
         this._products = []
+        this._searchQuery = "";
         this._selectedType = {}
         this._selectedProducer = {}
         this._selectedProduct = {}
@@ -15,6 +16,10 @@ export default class ProductStore {
         this._totalCount = 0;
         this._limit = 0;
         makeAutoObservable(this);
+    }
+
+    setSearchQuery(query) {
+        this._searchQuery = query;
     }
 
     setSelectedProduct(product){
@@ -97,6 +102,10 @@ export default class ProductStore {
 
     get selectedProduct() {
         return this._selectedProduct;
+    }
+
+    get searchQuery() {
+        return this._searchQuery;
     }
 
 }

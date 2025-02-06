@@ -5,7 +5,7 @@ import ProducerBar from "../components/ProducerBar";
 import ProductList from "../components/ProductList";
 import {observer} from "mobx-react-lite";
 import {Context} from "../index";
-import {fetchProducers, fetchProducts, fetchTypes} from "../http/productAPI";
+import {fetchProducers, fetchProducts, fetchTypes, searchProductsByName} from "../http/productAPI";
 import PagesBar from "../components/PagesBar";
 
 const ShopPage = observer(() => {
@@ -29,6 +29,19 @@ const ShopPage = observer(() => {
             product.setTotalCount(data.count);
         })
     }, [product.page, product.selectedType, product.selectedProducer, ]);
+
+    useEffect(() => {
+        if (product.searchQuery) {
+            searchProductsByName(product.searchQuery).then(data => {
+                product.setProducts(data);
+            });
+        } else {
+            fetchProducts(null, null, 1, productsLimit).then(data => {
+                product.setProducts(data.rows);
+                product.setTotalCount(data.count);
+            });
+        }
+    }, [product.searchQuery]);
 
     return (
         <Container>
