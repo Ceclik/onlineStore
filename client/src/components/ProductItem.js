@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, Col, Image } from "react-bootstrap";
 import { PRODUCT_ROUTE } from "../utils/consts";
 import { useNavigate } from "react-router-dom";
-import { fetchOneProducer } from "../http/productAPI"; // Импорт запроса
+import { fetchOneProducer } from "../http/productAPI";
 
 const ProductItem = ({ product }) => {
     const navigate = useNavigate();
@@ -15,13 +15,27 @@ const ProductItem = ({ product }) => {
     }, [product.producerId]);
 
     return (
-        <Col md={3} className={"mt-3"} onClick={() => navigate(PRODUCT_ROUTE + '/' + product.id)}>
-            <Card style={{ width: 150, cursor: "pointer" }} border={"light"}>
-                <Image width={150} height={150} src={process.env.REACT_APP_API_URL + product.image} />
-                <div className={"d-flex justify-content-between align-items-center"}>
-                    <div>{product.name}</div>
-                </div>
-                <div className={"text-black-50"}>{producerName}</div>
+        <Col md={3} className="mt-3">
+            <Card
+                style={{
+                    width: 180,
+                    height: 250,
+                    cursor: "pointer",
+                    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.15)",
+                    transition: "box-shadow 0.3s ease-in-out",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    textAlign: "center"
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.boxShadow = "0px 12px 30px rgba(0, 0, 0, 0.25)"}
+                onMouseLeave={(e) => e.currentTarget.style.boxShadow = "0px 4px 10px rgba(0, 0, 0, 0.15)"}
+                onClick={() => navigate(PRODUCT_ROUTE + '/' + product.id)}
+            >
+                <Image width={120} height={120} src={process.env.REACT_APP_API_URL + product.image} />
+                <div className="mt-2 fw-bold">{product.name}</div>
+                <div className="text-black-50">{producerName}</div>
             </Card>
         </Col>
     );

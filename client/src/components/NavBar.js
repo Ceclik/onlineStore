@@ -1,9 +1,9 @@
-import React, { useContext, useState } from "react";
-import { Navbar } from "react-bootstrap";
-import { Context } from "../index";
-import { SHOP_ROUTE } from "../utils/consts";
-import { observer } from "mobx-react-lite";
-import { searchProductsByName } from "../http/productAPI";
+import React, {useContext, useState} from "react";
+import {Container, Navbar} from "react-bootstrap";
+import {Context} from "../index";
+import {SHOP_ROUTE} from "../utils/consts";
+import {observer} from "mobx-react-lite";
+import {searchProductsByName} from "../http/productAPI";
 import "../styles/fonts.css";
 
 const NavBar = observer(() => {
@@ -20,6 +20,7 @@ const NavBar = observer(() => {
 
     return (
         <nav className="navbar px-3 py-2" style={{ backgroundColor: "#eee", borderRadius: "20px" }}>
+            <Container>
             <Navbar.Brand href={SHOP_ROUTE} className="fw-bold" style={{
                 color: "#800080",
                 fontSize: 32,
@@ -40,6 +41,7 @@ const NavBar = observer(() => {
                         onClick={handleSearch}>Искать
                 </button>
             </div>
+            </Container>
         </nav>
     );
 });
