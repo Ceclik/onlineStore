@@ -46,7 +46,7 @@ const ShopPage = observer(() => {
     return (
         <Container>
             <Row className="mt-3 mt-md-4">
-                <Col lg={8} md={10} sm={12}>
+                <Col xs={12}>
                     <TypeBar />
                     <ProductList />
                     <PagesBar />
