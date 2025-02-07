@@ -14,13 +14,10 @@ export const login = async (email, password) => {
 
 export const check = async () => {
     try {
-        console.log('in check method!')
         const res = await $authHost.get('api/user/auth');
-        console.log(`res status: ${res.status}`);
         if (res.status !== 401) {
             const {data} = res;
             localStorage.setItem('token', data);
-            console.log(`received token: ${JSON.stringify(data)}`);
             return jwtDecode(data);
         }
         else{

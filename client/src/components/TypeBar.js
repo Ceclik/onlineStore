@@ -7,19 +7,19 @@ const TypeBar = observer(() => {
     const { product } = useContext(Context);
 
     return (
-        <Col className="d-flex gap-2">
+        <Col className="d-flex gap-2 flex-wrap">
             {product.types.map(type =>
                 <Card
                     style={{
                         cursor: "pointer",
-                        width: 140,
+                        width: 120,
                         height: 50,
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
                         textAlign: "center",
                         border: `1px solid ${type.id === product.selectedType.id ? "#800080" : "#888"}`,
-                        fontSize: "18px",
+                        fontSize: "16px",
                         fontWeight: "bold",
                         transition: "color 0.2s ease-in-out, border-color 0.2s ease-in-out"
                     }}

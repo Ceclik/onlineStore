@@ -1,15 +1,15 @@
-import React, {useContext, useEffect} from 'react';
-import {Col, Container, Row} from "react-bootstrap";
+import React, { useContext, useEffect } from 'react';
+import { Col, Container, Row } from "react-bootstrap";
 import TypeBar from "../components/TypeBar";
 import ProducerBar from "../components/ProducerBar";
 import ProductList from "../components/ProductList";
-import {observer} from "mobx-react-lite";
-import {Context} from "../index";
-import {fetchProducers, fetchProducts, fetchTypes, searchProductsByName} from "../http/productAPI";
+import { observer } from "mobx-react-lite";
+import { Context } from "../index";
+import { fetchProducers, fetchProducts, fetchTypes, searchProductsByName } from "../http/productAPI";
 import PagesBar from "../components/PagesBar";
 
 const ShopPage = observer(() => {
-    const {product} = useContext(Context);
+    const { product } = useContext(Context);
     const productsLimit = 8;
 
     useEffect(() => {
@@ -28,7 +28,7 @@ const ShopPage = observer(() => {
             product.setProducts(data.rows);
             product.setTotalCount(data.count);
         })
-    }, [product.page, product.selectedType, product.selectedProducer, ]);
+    }, [product.page, product.selectedType, product.selectedProducer]);
 
     useEffect(() => {
         if (product.searchQuery) {
@@ -45,8 +45,8 @@ const ShopPage = observer(() => {
 
     return (
         <Container>
-            <Row className="mt-4">
-                <Col md={8}>
+            <Row className="mt-3 mt-md-4">
+                <Col lg={8} md={10} sm={12}>
                     <TypeBar />
                     <ProductList />
                     <PagesBar />

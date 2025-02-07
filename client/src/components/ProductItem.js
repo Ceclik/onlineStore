@@ -15,10 +15,10 @@ const ProductItem = ({ product }) => {
     }, [product.producerId]);
 
     return (
-        <Col md={3} className="mt-3">
+        <Col lg={3} md={4} sm={6} xs={12} className="mt-3">
             <Card
                 style={{
-                    width: 180,
+                    width: "100%",
                     height: 250,
                     cursor: "pointer",
                     boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.15)",
@@ -29,8 +29,6 @@ const ProductItem = ({ product }) => {
                     justifyContent: "center",
                     textAlign: "center"
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.boxShadow = "0px 12px 30px rgba(0, 0, 0, 0.25)"}
-                onMouseLeave={(e) => e.currentTarget.style.boxShadow = "0px 4px 10px rgba(0, 0, 0, 0.15)"}
                 onClick={() => navigate(PRODUCT_ROUTE + '/' + product.id)}
             >
                 <Image width={120} height={120} src={process.env.REACT_APP_API_URL + product.image} />
