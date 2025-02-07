@@ -1,9 +1,10 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Button, Col, Dropdown, DropdownMenu, Form, Modal, Row } from "react-bootstrap";
+import { Button, Col, Form, Modal, Row } from "react-bootstrap";
 import { Context } from "../../index";
 import {
     fetchOneProducer,
-    fetchOneProduct, fetchOneType,
+    fetchOneProduct,
+    fetchOneType,
     fetchProducers,
     fetchProducts,
     fetchTypes,
@@ -59,6 +60,18 @@ const EditProduct = observer(({ show, onHide }) => {
         }
     };
 
+    const addInfo = () => {
+        setInfo([...info, { title: "", description: "", number: Date.now() }]);
+    };
+
+    const removeInfo = (number) => {
+        setInfo(info.filter(i => i.number !== number));
+    };
+
+    const changeInfo = (key, value, number) => {
+        setInfo(info.map(i => i.number === number ? { ...i, [key]: value } : i));
+    };
+
     const updateProductHandler = () => {
         if (!selectedProduct) return;
 
@@ -103,6 +116,26 @@ const EditProduct = observer(({ show, onHide }) => {
                         type={"file"}
                         onChange={(e) => setFile(e.target.files[0])}
                     />
+                    <hr />
+                    <Button variant={'outline-dark'} onClick={addInfo}>Добавить новое свойство</Button>
+
+                    {info.map(i => (
+                        <Row className={'mt-3'} key={i.number}>
+                            <Col md={4}>
+                                <Form.Control value={i.title}
+                                              onChange={(e) => changeInfo('title', e.target.value, i.number)}
+                                              placeholder={'Название'} />
+                            </Col>
+                            <Col md={4}>
+                                <Form.Control value={i.description}
+                                              onChange={(e) => changeInfo('description', e.target.value, i.number)}
+                                              placeholder={'Описание'} />
+                            </Col>
+                            <Col md={4}>
+                                <Button variant={'outline-danger'} onClick={() => removeInfo(i.number)}>Удалить</Button>
+                            </Col>
+                        </Row>
+                    ))}
                 </Form>
             </Modal.Body>
             <Modal.Footer>
