@@ -1,8 +1,12 @@
 import {$authHost, $host} from "./index";
 
 export const createType = async (type) => {
-    const {data} = await $authHost.post('api/type/add', type);
-    return data;
+    try {
+        const {data} = await $authHost.post('api/type/add', type);
+        return data;
+    }catch (e) {
+        alert(`Error: ${e.response.data}`);
+    }
 }
 
 export const fetchTypes = async () => {
@@ -10,7 +14,7 @@ export const fetchTypes = async () => {
         const {data} = await $host.get('api/type/all');
         return data;
     } catch (e) {
-        console.log(e.message);
+        alert(`Error: ${e.response.data}`);
     }
 }
 
@@ -19,7 +23,7 @@ export const fetchOneType = async (id) => {
         const {data} = await $host.get('api/type/' + id);
         return data;
     } catch(e) {
-        console.log(e.message);
+        alert(`Error: ${e.response.data}`);
     }
 }
 
@@ -34,8 +38,8 @@ export const searchTypesByName = async (name) => {
             params: { name }
         });
         return data;
-    } catch (error) {
-        console.error("Error fetching types:", error);
+    } catch (e) {
+        alert(`Error: ${e.response.data}`);
         return [];
     }
 };
@@ -45,7 +49,7 @@ export const createProducer = async (producer, typeId) => {
         const {data} = await $authHost.post('api/producer/add', producer, typeId);
         return data;
     }catch (e){
-        console.log(e.message);
+        alert(`Error: ${e.response.data}`);
     }
 }
 
@@ -54,7 +58,7 @@ export const fetchProducers = async () => {
         const {data} = await $host.get('api/producer/all');
         return data;
     } catch (e) {
-        console.log(e.message);
+        alert(`Error: ${e.response.data}`);
     }
 }
 
@@ -63,7 +67,7 @@ export const fetchOneProducer = async (id) => {
         const {data} = await $host.get('/api/producer/' + id);
         return data;
     } catch (e) {
-        console.log(e.message);
+        alert(`Error: ${e.response.data}`);
     }
 }
 
@@ -74,7 +78,7 @@ export const searchProducersByName = async (name) => {
         });
         return data;
     } catch (error) {
-        console.error("Error fetching types:", error);
+        alert("Error fetching types:" + error.response.data);
         return [];
     }
 };
@@ -98,7 +102,7 @@ export const fetchProducts = async (typeId, producerId, page, limit = 5) => {
         });
         return data;
     } catch (e) {
-        console.log(e.message);
+        alert(`Error: ${e.response.data}`);
     }
 }
 export const deleteProduct = async (productId) => {
@@ -111,7 +115,7 @@ export const fetchOneProduct = async (id) => {
         const {data} = await $host.get('api/product/' + id);
         return data;
     }catch (e) {
-        console.log(e.message);
+        alert(`Error: ${e.response.data}`);
     }
 }
 
@@ -127,7 +131,7 @@ export const searchProductsByName = async (name) => {
         });
         return data;
     } catch (error) {
-        console.error("Error fetching products:", error);
+        alert("Error fetching products:" + error.response.data);
         return [];
     }
 };

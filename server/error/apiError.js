@@ -2,8 +2,10 @@ const { errorList } = require('./errorList.const');
 
 class ApiError extends Error {
     constructor(statusCode, message) {
+        console.log(`in api error constructor. Message: ${message}`);
         super(message);
         this.statusCode = statusCode;
+
     }
 
     static fromError(errorType) {

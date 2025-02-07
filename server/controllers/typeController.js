@@ -44,12 +44,24 @@ class TypeController {
     }
 
     async addType(req, res, next) {
-        const {name} = req.body;
-        if (!name) {
-            return next(apiError.badRequest('name is not defined!'));
+        try {
+            const {name} = req.body;
+            if (!name) {
+                throw apiError.badRequest('name is not defined!');
+            }
+
+            const type = await Type.findOne({
+                where: {name}
+            });
+
+            if(type)
+                throw ApiError.badRequest("This type is already exist");
+
+            const createdType = await Type.create({name});
+            return res.json({"createdType": {createdType}});
+        }catch(e){
+            next(e);
         }
-        const createdType = await Type.create({name});
-        return res.json({"createdType": {createdType}});
     }
 
     async nameSearch(req, res, next){
